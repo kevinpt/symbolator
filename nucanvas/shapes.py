@@ -3,10 +3,6 @@ from __future__ import print_function
 import os
 import math
 
-#################################
-## NuCANVAS objects
-#################################
-
 
 def rounded_corner(start, apex, end, rad):
   #print('## start, apex, end', start, apex, end)
@@ -57,6 +53,54 @@ def rounded_corner(start, apex, end, rad):
   
   return (center, start_p, end_p, rad)
 
+def rotate_bbox(box, a):
+  '''Rotate a bounding box 4-tuple by an angle in degrees'''
+  corners = ( (box[0], box[1]), (box[0], box[3]), (box[2], box[3]), (box[2], box[1]) )
+  a = -math.radians(a)
+  sa = math.sin(a)
+  ca = math.cos(a)
+  
+  rot = []
+  for p in corners:
+    rx = p[0]*ca + p[1]*sa
+    ry = -p[0]*sa + p[1]*ca
+    rot.append((rx,ry))
+  
+  # Find the extrema of the rotated points
+  rot = list(zip(*rot))
+  rx0 = min(rot[0])
+  rx1 = max(rot[0])
+  ry0 = min(rot[1])
+  ry1 = max(rot[1])
+
+  #print('## RBB:', box, rot)
+    
+  return (rx0, ry0, rx1, ry1)
+
+
+class BaseSurface(object):
+  def __init__(self, fname, def_styles, padding=0, scale=1.0):
+    self.fname = fname
+    self.def_styles = def_styles
+    self.padding = padding
+    self.scale = scale
+    self.draw_bbox = False
+    self.markers = {}
+    
+    self.shape_drawers = {}
+    
+  def add_shape_class(self, sclass, drawer):
+    self.shape_drawers[sclass] = drawer
+    
+  def render(self, canvas, transparent=False):
+    pass
+    
+  def text_bbox(self, text, font_params):
+    pass
+
+#################################
+## NuCANVAS objects
+#################################
 
 
 class DrawStyle(object):
@@ -93,7 +137,6 @@ class BaseShape(object):
     else:
       w = 0
 
-    # FIXME: Syntrax has a bug in this prop. Fix is below
     x0 = min(self._bbox[0], self._bbox[2])
     x1 = max(self._bbox[0], self._bbox[2])
     y0 = min(self._bbox[1], self._bbox[3])
@@ -143,28 +186,6 @@ class BaseShape(object):
   def draw(self, c):
     pass
 
-
-def rotate_bbox(box, a):
-  corners = ( (box[0], box[1]), (box[0], box[3]), (box[2], box[3]), (box[2], box[1]) )
-  a = -math.radians(a)
-  sa = math.sin(a)
-  ca = math.cos(a)
-  
-  rot = []
-  for p in corners:
-    rx = p[0]*ca + p[1]*sa
-    ry = -p[0]*sa + p[1]*ca
-    rot.append((rx,ry))
-  
-  rot = list(zip(*rot))
-  rx0 = min(rot[0])
-  rx1 = max(rot[0])
-  ry0 = min(rot[1])
-  ry1 = max(rot[1])
-
-  #print('## RBB:', box, rot)
-    
-  return (rx0, ry0, rx1, ry1)
 
 class GroupShape(BaseShape):
   def __init__(self, surf, x0, y0, options, **kwargs):
@@ -285,7 +306,7 @@ class GroupShape(BaseShape):
         bx0, by0, bx1, by1 = rotate_bbox((bx0, by0, bx1, by1), self.options['angle'])
 
       tx, ty = self._pos
-      self._bbox = (bx0+tx, by0+ty, bx1+tx, by1+ty)
+      self._bbox = [bx0+tx, by0+ty, bx1+tx, by1+ty]
       
     return self._bbox
 

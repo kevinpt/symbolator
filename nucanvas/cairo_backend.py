@@ -41,27 +41,6 @@ def cairo_line_cap(line_cap):
   else:
     return cairo.LINE_CAP_BUTT
 
-
-class BaseSurface(object):
-  def __init__(self, fname, def_styles, padding=0, scale=1.0):
-    self.fname = fname
-    self.def_styles = def_styles
-    self.padding = padding
-    self.scale = scale
-    self.draw_bbox = False
-    self.markers = {}
-    
-    self.shape_drawers = {}
-    
-  def add_shape_class(self, sclass, drawer):
-    self.shape_drawers[sclass] = drawer
-    
-  def render(self, canvas, transparent=False):
-    pass
-    
-  def text_bbox(self, text, font_params):
-    pass
-
     
 class CairoSurface(BaseSurface):
   def __init__(self, fname, def_styles, padding=0, scale=1.0):
@@ -120,15 +99,14 @@ class CairoSurface(BaseSurface):
   def text_bbox(self, text, font_params, spacing = 0):
     surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, 8, 8)
     ctx = cairo.Context(surf)
-    # FIXME: Syntrax bug
+
     # The scaling must match the final context.
     # If not there can be a mismatch between the computed extents here
     # and those generated for the final render.
     ctx.scale(self.scale, self.scale)
     
     font = cairo_font(font_params)
-    
-    
+
 
     if use_pygobject:
       status, attrs, plain_text, _ = pango.parse_markup(text, len(text), '\0')
