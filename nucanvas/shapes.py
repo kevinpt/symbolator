@@ -11,17 +11,19 @@ def rounded_corner(start, apex, end, rad):
   start = (start[0] - apex[0], start[1] - apex[1])
   end = (end[0] - apex[0], end[1] - apex[1])
   
-#    print('## start, end', start, end)
+  #print('## start, end', start, end)
   
   # Get angles of each line segment
   enter_a = math.atan2(start[1], start[0]) % math.radians(360)
   leave_a = math.atan2(end[1], end[0]) % math.radians(360)
   
-#    print('## enter, leave', math.degrees(enter_a), math.degrees(leave_a))
+  #print('## enter, leave', math.degrees(enter_a), math.degrees(leave_a))
   
-  bisect = abs(enter_a - (enter_a + leave_a) / 2.0)
-  
-#    print('## bisect', math.degrees(bisect))
+  # Determine bisector angle
+  ea2 = abs(enter_a - leave_a)
+  if ea2 > math.radians(180):
+    ea2 = math.radians(360) - ea2
+  bisect = ea2 / 2.0
   
   if bisect > math.radians(82): # Nearly colinear: Skip radius
     return (apex, apex, apex, -1)
@@ -43,8 +45,17 @@ def rounded_corner(start, apex, end, rad):
 #    print('## rad, q, h', rad, q, h)
   
   # Center of circle
-  bisect = (enter_a + leave_a) / 2.0
-#   print('## bisect2', math.degrees(bisect))
+
+  # Determine which direction is the smallest angle to the leave point
+  # Determine direction of arc
+  # Rotate whole system so that enter_a is on x-axis
+  delta = (leave_a - enter_a) % math.radians(360)
+  if delta < math.radians(180): # CW
+    bisect = enter_a + bisect
+  else: # CCW
+    bisect = enter_a - bisect
+
+  #print('## Bisect2', math.degrees(bisect))
   center = (h * math.cos(bisect) + apex[0], h * math.sin(bisect) + apex[1])
   
   # Find start and end point of arcs
@@ -95,7 +106,7 @@ class BaseSurface(object):
   def render(self, canvas, transparent=False):
     pass
     
-  def text_bbox(self, text, font_params):
+  def text_bbox(self, text, font_params, spacing):
     pass
 
 #################################
@@ -421,7 +432,6 @@ class TextShape(BaseShape):
   text_id = 1
   def __init__(self, x0, y0, surf, options=None, **kwargs):
     BaseShape.__init__(self, options, **kwargs)
-    #self.options = options
     self._pos = (x0, y0)
 
     if 'spacing' not in options:
@@ -431,16 +441,50 @@ class TextShape(BaseShape):
       
     spacing = options['spacing']
 
-    bx0,by0, bx1,by1 = surf.text_bbox(options['text'], options['font'], spacing)
+    bx0,by0, bx1,by1, baseline = surf.text_bbox(options['text'], options['font'], spacing)
     w = bx1 - bx0
     h = by1 - by0
     
+    self._baseline = baseline
     self._bbox = [x0, y0, x0+w, y0+h]
-    self.move(*self.anchor_offset)
+    self._anchor_off = self.anchor_offset
+    #self.move(*self.anchor_offset)
     
     #self._bbox = text_bbox(options['text'], options['font'])
     self.update_tags()
     #print('## NEW TEXT:', x0, y0, self._bbox, anchor)
+
+  @property
+  def bbox(self):
+    x0, y0, x1, y1 = self._bbox
+    ax, ay = self._anchor_off
+    #ax = ay = 0
+    #ay = 0
+    return (x0+ax, y0+ay, x1+ax, y1+ay)
+
+  @property
+  def anchor_decode(self):
+    anchor = self.param('anchor').lower()
+
+    anchor = anchor.replace('center','c')
+    anchor = anchor.replace('east','e')
+    anchor = anchor.replace('west','w')
+
+    if 'e' in anchor:
+      anchorh = 'e'
+    elif 'w' in anchor:
+      anchorh = 'w'
+    else:
+      anchorh = 'c'
+
+    if 'n' in anchor:
+      anchorv = 'n'
+    elif 's' in anchor:
+      anchorv = 's'
+    else:
+      anchorv = 'c'
+
+    return (anchorh, anchorv)
 
   @property
   def anchor_offset(self):
@@ -450,25 +494,27 @@ class TextShape(BaseShape):
     hw = w / 2.0
     hh = h / 2.0
 
-  
-    anchor = self.param('anchor').lower()
     spacing = self.param('spacing')
-    
-    # Decode anchor
-    anchor = anchor.replace('center','c')
-    anchor = anchor.replace('east','e')
-    anchor = anchor.replace('west','w')
+    #spacing = 0
+
+
+#    anchor = self.param('anchor').lower()
+#    # Decode anchor
+#    anchor = anchor.replace('center','c')
+#    anchor = anchor.replace('east','e')
+#    anchor = anchor.replace('west','w')
+    anchorh, anchorv = self.anchor_decode
     ax = 0
     ay = 0
     
-    if 'n' in anchor:
+    if 'n' in anchorv:
       ay = hh + (spacing // 2)
-    elif 's' in anchor:
+    elif 's' in anchorv:
       ay = -hh - (spacing // 2)
     
-    if 'e' in anchor:
+    if 'e' in anchorh:
       ax = -hw
-    elif 'w' in anchor:
+    elif 'w' in anchorh:
       ax = hw
       
     # Convert from center to upper-left corner

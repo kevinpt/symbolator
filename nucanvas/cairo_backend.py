@@ -95,15 +95,18 @@ class CairoSurface(BaseSurface):
     else:
       surf.write_to_png(self.fname)
 
+  def text_bbox(self, text, font_params, spacing=0):
+    return CairoSurface.cairo_text_bbox(text, font_params, spacing, self.scale)
 
-  def text_bbox(self, text, font_params, spacing = 0):
+  @staticmethod
+  def cairo_text_bbox(text, font_params, spacing=0, scale=1.0):
     surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, 8, 8)
     ctx = cairo.Context(surf)
 
     # The scaling must match the final context.
     # If not there can be a mismatch between the computed extents here
     # and those generated for the final render.
-    ctx.scale(self.scale, self.scale)
+    ctx.scale(scale, scale)
     
     font = cairo_font(font_params)
 
@@ -122,7 +125,7 @@ class CairoSurface(BaseSurface):
       layout.set_attributes(attrs)
       re = layout.get_pixel_extents()[1] # Get logical extents
       extents = (re.x, re.y, re.x + re.width, re.y + re.height)
-
+      # FIXME: new extents, baseline on pygopject
     else: # pyGtk
       attrs, plain_text, _ = pango.parse_markup(text)
     
@@ -134,13 +137,13 @@ class CairoSurface(BaseSurface):
       layout.set_text(plain_text)
       layout.set_attributes(attrs)
       
+      li = layout.get_iter()
+      baseline = li.get_baseline() / pango.SCALE
+
       #print('@@ EXTENTS:', layout.get_pixel_extents()[1], spacing)
       extents = layout.get_pixel_extents()[1] # Get logical extents
-    w = extents[2] - extents[0]
-    h = extents[3] - extents[1]
-    x0 = - w // 2.0
-    y0 = - h // 2.0
-    return [x0,y0, x0+w,y0+h]
+
+    return [extents[0], extents[1], extents[2], extents[3], baseline]
 
 
 
@@ -341,7 +344,7 @@ class CairoSurface(BaseSurface):
       c.restore()
 
     elif isinstance(shape, TextShape):
-      x0, y0, x1, y1 = shape.points
+      x0, y0, x1, y1 = shape.bbox
       
       text = shape.param('text', self.def_styles)      
       font = shape.param('font', self.def_styles)

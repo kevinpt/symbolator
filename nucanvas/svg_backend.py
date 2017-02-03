@@ -3,9 +3,11 @@ from __future__ import print_function
 import io
 import os
 import math
+import StringIO
 
-#import cairo
+#import cairo # For text bbox
 from shapes import *
+from cairo_backend import CairoSurface
 
 #try:
 #  import pango
@@ -20,27 +22,27 @@ from shapes import *
 ## SVG objects
 #################################
 
-def rgb_to_cairo(rgb):
-  if len(rgb) == 4:
-    r,g,b,a = rgb
-    return (r / 255.0, g / 255.0, b / 255.0, a / 255.0)
+#def rgb_to_cairo(rgb):
+#  if len(rgb) == 4:
+#    r,g,b,a = rgb
+#    return (r / 255.0, g / 255.0, b / 255.0, a / 255.0)
 
-  else:
-    r,g,b = rgb
-    return (r / 255.0, g / 255.0, b / 255.0, 1.0)
+#  else:
+#    r,g,b = rgb
+#    return (r / 255.0, g / 255.0, b / 255.0, 1.0)
 
 def cairo_font(tk_font):
   family, size, weight = tk_font
   return pango.FontDescription('{} {} {}'.format(family, weight, size))
 
 
-def cairo_line_cap(line_cap):
-  if line_cap == 'round':
-    return cairo.LINE_CAP_ROUND
-  elif line_cap == 'square':
-    return cairo.LINE_CAP_SQUARE
-  else:
-    return cairo.LINE_CAP_BUTT
+#def cairo_line_cap(line_cap):
+#  if line_cap == 'round':
+#    return cairo.LINE_CAP_ROUND
+#  elif line_cap == 'square':
+#    return cairo.LINE_CAP_SQUARE
+#  else:
+#    return cairo.LINE_CAP_BUTT
 
 
 def rgb_to_hex(rgb):
@@ -53,7 +55,23 @@ def hex_to_rgb(hex_color):
   r = (v >> 16) & 0xFF
   return (r,g,b)
 
-    
+
+def xml_escape(txt):
+    txt = txt.replace('&', '&amp;')
+    txt = txt.replace('<', '&lt;')
+    txt = txt.replace('>', '&gt;')
+    txt = txt.replace('"', '&quot;')
+    return txt
+
+
+def visit_shapes(s, f):
+  f(s)
+  try:
+    for c in s.shapes:
+      visit_shapes(c, f)
+  except AttributeError:
+    pass
+
 class SvgSurface(BaseSurface):
   def __init__(self, fname, def_styles, padding=0, scale=1.0):
     BaseSurface.__init__(self, fname, def_styles, padding, scale)
@@ -65,7 +83,7 @@ class SvgSurface(BaseSurface):
 <svg xmlns="http://www.w3.org/2000/svg"
 xmlns:xlink="http://www.w3.org/1999/xlink"
 xml:space="preserve"
-width="{}" height="{}" version="1.1">
+width="{}" height="{}" viewBox="{}" version="1.1">
 <style type="text/css">
 <![CDATA[
 {}
@@ -78,18 +96,20 @@ width="{}" height="{}" version="1.1">
 ]]>
 </style>
 <defs>
-  <marker id="arrow" markerWidth="5" markerHeight="4" refX="2.5" refY="2" orient="auto" markerUnits="strokeWidth">
-    <path d="M0,0 L0.5,2 L0,4 L4.5,2 z" fill="{}" />
-  </marker>
+{}
 </defs>
 '''
+
+#  <marker id="arrow_back" markerWidth="5" markerHeight="4" refX="2.5" refY="2" orient="auto" markerUnits="strokeWidth">
+#    <path d="M0,0 L0.5,2 L0,4 L4.5,2 z" fill="{}" />
+#  </marker>
 
   def render(self, canvas, transparent=False):
     x0,y0,x1,y1 = canvas.bbox('all')
     self.markers = canvas.markers
     
-    W = int((x1 - x0 + 2*self.padding) * self.scale)
-    H = int((y1 - y0 + 2*self.padding) * self.scale)
+    W = x1 - x0 + 2*self.padding
+    H = y1 - y0 + 2*self.padding
     
     x0 = int(x0)
     y0 = int(y0)
@@ -97,24 +117,50 @@ width="{}" height="{}" version="1.1">
     #print('###', x0, y0)
 
     # Reposition all shapes in the viewport
-    for s in canvas.shapes:
-      s.move(-x0 + self.padding, -y0 + self.padding)
+#    for s in canvas.shapes:
+#      s.move(-x0 + self.padding, -y0 + self.padding)
+    vbox = u' '.join(str(s) for s in (x0-self.padding,y0-self.padding, W,H))
 
     # Generate CSS for fonts
     text_color = rgb_to_hex(self.def_styles.text_color)
-    css = []
 
-    fonts = {}
-    # Collect fonts from common styles
-    for f in [k for k in dir(self.def_styles) if k.endswith('_font')]:
-      fonts[f] = (getattr(self.def_styles, f), text_color)
+#    fonts = {}
+#    # Collect fonts from common styles
+#    for f in [k for k in dir(self.def_styles) if k.endswith('_font')]:
+#      fonts[f] = (getattr(self.def_styles, f), text_color)
 #    # Collect node style fonts
 #    for ns in styles.node_styles:
 #      fonts[ns.name + '_font'] = (ns.font, rgb_to_hex(ns.text_color))
+    # Get fonts from all shapes
 
-    for f, fs in fonts.iteritems():
+
+    class FontVisitor(object):
+      def __init__(self):
+        self.font_ix = 1
+        self.font_set = {}
+
+      def get_font_info(self, s):
+        if 'font' in s.options:
+          fdef = s.options['font']
+          fdata = (fdef,(0,0,0))
+
+          if fdata not in self.font_set:
+            self.font_set[fdata] = 'fnt' + str(self.font_ix)
+            self.font_ix += 1
+            #print('# FONT:', s.options['font'])
+
+          fclass = self.font_set[fdata]
+          s.options['css_class'] = fclass
+
+    fv = FontVisitor()
+    visit_shapes(canvas, fv.get_font_info)
+
+    #print('## FSET:', fv.font_set)
+
+    font_css = []
+    for fs, fid in fv.font_set.iteritems():
       family, size, weight = fs[0]
-      text_color = fs[1]
+      text_color = rgb_to_hex(fs[1])
 
       if weight == 'italic':
         style = 'italic'
@@ -122,138 +168,98 @@ width="{}" height="{}" version="1.1">
       else:
         style = 'normal'
 
-      css.append('''.{} {{fill:{}; text-anchor:middle;
-    font-family:{}; font-size:{}pt; font-weight:{}; font-style:{};}}'''.format(f,
+      font_css.append('''.{} {{fill:{};
+    font-family:{}; font-size:{}pt; font-weight:{}; font-style:{};}}'''.format(fid,
       text_color, family, size, weight, style))
+#      font_css.append('''.{} {{
+#    font-family:{}; font-size:{}pt; font-weight:{}; font-style:{};}}'''.format(fid,
+#      family, size, weight, style))
+
+    font_styles = '\n'.join(font_css)
+
+    # Generate markers
+    markers = []
+    for mname in self.markers.iterkeys():
+      #print('## MARKER:', mname)
+
+      m_shape, ref, orient, units = self.markers[mname]
+      mx0, my0, mx1, my1 = m_shape.bbox
+
+      mw = mx1 - mx0
+      mh = my1 - my0
+
+      attrs = {
+        'id': mname,
+        'markerWidth': mw,
+        'markerHeight': mh,
+        'viewBox': ' '.join(str(p) for p in (mx0, my0, mw, mh)),
+        'refX': ref[0] - mx0,
+        'refY': ref[1] - my0,
+        'orient': orient,
+        'markerUnits': 'strokeWidth' if units == 'stroke' else 'userSpaceOnUse'
+      }
+
+      attributes = ' '.join(['{}="{}"'.format(k,v) for k,v in attrs.iteritems()])
+
+      buf = StringIO.StringIO()
+      self.draw_shape(m_shape, buf)
+      svg_shapes = buf.getvalue()
+      buf.close()
+
+      markers.append(u'<marker {}>\n{}</marker>'.format(attributes, svg_shapes))
+
+    markers = '\n'.join(markers)
 
 
-    font_styles = '\n'.join(css)
-    line_color = rgb_to_hex(self.def_styles.line_color)
+    if self.draw_bbox:
+      last = len(canvas.shapes)
+      for s in canvas.shapes[:last]:
+        bbox = s.bbox
+        r = canvas.create_rectangle(*bbox, line_color=(255,0,0, 127), fill=(0,255,0,90))
+
 
     with io.open(self.fname, 'w', encoding='utf-8') as fh:
       self.fh = fh
-      fh.write(SvgSurface.svg_header.format(W,H, font_styles, line_color))
+      fh.write(SvgSurface.svg_header.format(int(W*self.scale),int(H*self.scale),
+              vbox, font_styles, markers))
       if not transparent:
-        fh.write(u'<rect width="100%" height="100%" fill="white"/>')
+        fh.write(u'<rect x="{}" y="{}" width="100%" height="100%" fill="white"/>'.format(x0-self.padding,y0-self.padding))
       for s in canvas.shapes:
         self.draw_shape(s)
       fh.write(u'</svg>')
 
 
-  def text_bbox(self, text, font_params, spacing = 0):
-    surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, 8, 8)
-    ctx = cairo.Context(surf)
-
-    # The scaling must match the final context.
-    # If not there can be a mismatch between the computed extents here
-    # and those generated for the final render.
-    ctx.scale(self.scale, self.scale)
-    
-    font = cairo_font(font_params)
-
-
-    if use_pygobject:
-      status, attrs, plain_text, _ = pango.parse_markup(text, len(text), '\0')
-      
-      layout = pangocairo.create_layout(ctx)
-      pctx = layout.get_context()
-      fo = cairo.FontOptions()
-      fo.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
-      pangocairo.context_set_font_options(pctx, fo)
-      layout.set_font_description(font)
-      layout.set_spacing(spacing * pango.SCALE)
-      layout.set_text(plain_text, len(plain_text))
-      layout.set_attributes(attrs)
-      re = layout.get_pixel_extents()[1] # Get logical extents
-      extents = (re.x, re.y, re.x + re.width, re.y + re.height)
-
-    else: # pyGtk
-      attrs, plain_text, _ = pango.parse_markup(text)
-    
-      pctx = pangocairo.CairoContext(ctx)
-      pctx.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
-      layout = pctx.create_layout()
-      layout.set_font_description(font)
-      layout.set_spacing(spacing * pango.SCALE)
-      layout.set_text(plain_text)
-      layout.set_attributes(attrs)
-      
-      #print('@@ EXTENTS:', layout.get_pixel_extents()[1], spacing)
-      extents = layout.get_pixel_extents()[1] # Get logical extents
-    w = extents[2] - extents[0]
-    h = extents[3] - extents[1]
-    x0 = - w // 2.0
-    y0 = - h // 2.0
-    return [x0,y0, x0+w,y0+h]
-
+  def text_bbox(self, text, font_params, spacing=0):
+    return CairoSurface.cairo_text_bbox(text, font_params, spacing, self.scale)
 
 
   @staticmethod
-  def draw_text(x, y, text, font, text_color, spacing, c):
-    c.save()
-    #print('## TEXT COLOR:', text_color)
-    c.set_source_rgba(*rgb_to_cairo(text_color))
-    font = cairo_font(font)
-
-    c.translate(x, y)
+  def draw_text(x, y, text, css_class, text_color, baseline, anchor, anchor_off, spacing, fh):
+    ah, av = anchor
     
-    if use_pygobject:
-      status, attrs, plain_text, _ = pango.parse_markup(text, len(text), '\0')
-      
-      layout = pangocairo.create_layout(c)
-      pctx = layout.get_context()
-      fo = cairo.FontOptions()
-      fo.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
-      pangocairo.context_set_font_options(pctx, fo)
-      layout.set_font_description(font)
-      layout.set_spacing(spacing * pango.SCALE)
-      layout.set_text(plain_text, len(plain_text))
-      layout.set_attributes(attrs)
-      pangocairo.update_layout(c, layout)
-      pangocairo.show_layout(c, layout)
+    if ah == 'w':
+      text_anchor = 'normal'
+    elif ah == 'e':
+      text_anchor = 'end'
+    else:
+      text_anchor = 'middle'
 
-    else: # pyGtk
-      attrs, plain_text, _ = pango.parse_markup(text)
-      
-      pctx = pangocairo.CairoContext(c)
-      pctx.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
-      layout = pctx.create_layout()
-      layout.set_font_description(font)
-      layout.set_spacing(spacing * pango.SCALE)
-      layout.set_text(plain_text)
-      layout.set_attributes(attrs)
-      pctx.update_layout(layout)
-      pctx.show_layout(layout)
-      
-    c.restore()
+    attrs = {
+      'text-anchor': text_anchor,
+      'dy': baseline + anchor_off[1]
+    }
 
-    
-  def draw_marker(self, name, mp, tp, width, c):
-    if name in self.markers:
-      #print('# MARKER:', name)
-      m_shape, ref, orient, units = self.markers[name]
 
-      c.save()
-      c.translate(*mp)
-      if orient == 'auto':
-        angle = math.atan2(tp[1]-mp[1], tp[0]-mp[0])
-        c.rotate(angle)
-      elif isinstance(orient, int):
-        angle = math.radians(orient)
-        c.rotate(angle)
+    if text_color != (0,0,0):
+      attrs['style'] = 'fill:{}'.format(rgb_to_hex(text_color))
 
-      if units == 'stroke':
-        print('  SCALE:', width)
-        c.scale(width,width)
-        
-      c.translate(-ref[0], -ref[1])
-      
-      
-      self.draw_shape(m_shape)
-      c.restore()
-    
-  def draw_shape(self, shape):
-    fh = self.fh
+    attributes = ' '.join(['{}="{}"'.format(k,v) for k,v in attrs.iteritems()])
+    fh.write(u'<text class="{}" x="{}" y="{}" {}>{}</text>\n'.format(css_class, x, y, attributes, xml_escape(text)))
+
+
+  def draw_shape(self, shape, fh=None):
+    if fh is None:
+      fh = self.fh
     default_pen = rgb_to_hex(self.def_styles.line_color)
     #c.set_source_rgba(*default_pen)
     
@@ -310,14 +316,18 @@ width="{}" height="{}" version="1.1">
 
     elif isinstance(shape, TextShape):
       x0, y0, x1, y1 = shape.points
+      baseline = shape._baseline
       
       text = shape.param('text', self.def_styles)      
       font = shape.param('font', self.def_styles)
       text_color = shape.param('text_color', self.def_styles)
-      anchor = shape.param('anchor', self.def_styles).lower()
+      #anchor = shape.param('anchor', self.def_styles).lower()
       spacing = shape.param('spacing', self.def_styles)
+      css_class = shape.param('css_class')
       
-      CairoSurface.draw_text(x0, y0, text, font, text_color, spacing, c)
+      anchor = shape.anchor_decode
+      anchor_off = shape._anchor_off
+      SvgSurface.draw_text(x0, y0, text, css_class, text_color, baseline, anchor, anchor_off, spacing, fh)
       
 
     elif isinstance(shape, LineShape):
@@ -325,15 +335,15 @@ width="{}" height="{}" version="1.1">
       
       marker = shape.param('marker')
       marker_start = shape.param('marker_start')
-      marker_mid = shape.param('marker_mid')
+      marker_seg = shape.param('marker_segment')
       marker_end = shape.param('marker_end')
       if marker is not None:
         if marker_start is None:
           marker_start = marker
         if marker_end is None:
           marker_end = marker
-        if marker_mid is None:
-          marker_mid = marker
+        if marker_seg is None:
+          marker_seg = marker
           
       adjust = shape.param('marker_adjust')
       if adjust is None:
@@ -349,6 +359,8 @@ width="{}" height="{}" version="1.1">
           m_shape, ref, orient, units = self.markers[marker_start]
           mx0, my0, mx1, my1 = m_shape.bbox
           soff = (ref[0] - mx0) * adjust
+          if units == 'stroke' and width > 0:
+            soff *= width
           #print("# SOFF", mx0, ref[0], soff)
           
           # Move start point
@@ -360,20 +372,27 @@ width="{}" height="{}" version="1.1">
           m_shape, ref, orient, units = self.markers[marker_end]
           mx0, my0, mx1, my1 = m_shape.bbox
           eoff = (mx1 - ref[0]) * adjust
+          if units == 'stroke' and width > 0:
+            eoff *= width
           #print("# EOFF", mx1, ref[0], eoff)
           
           # Move end point
           x1 -= eoff * dx
           y1 -= eoff * dy
 
+        #print('# ADJ:', x0,y0, x1, y1)
+
+
+      # Add markers
+      if marker_start in self.markers:
+        attrs['marker-start'] = u'url(#{})'.format(marker_start)
+      if marker_end in self.markers:
+        attrs['marker-end'] = u'url(#{})'.format(marker_end)
+      # FIXME: marker_seg
+
       attributes = ' '.join(['{}="{}"'.format(k,v) for k,v in attrs.iteritems()])
 
-      fh.write(u'<line x1="{}" y1="{}" x2="{}" y2="{}" {}/>'.format(x0,y0, x1,y1, attributes))
-#      # Draw any markers
-      # FIXME
-#      self.draw_marker(marker_start, (x0,y0), (x1,y1), width, c)
-#      self.draw_marker(marker_end, (x1,y1), (x1 + 2*(x1-x0),y1 + 2*(y1-y0)), width,  c)
-#      self.draw_marker(marker_mid, ((x0 + x1)/2,(y0+y1)/2), (x1,y1), width, c)
+      fh.write(u'<line x1="{}" y1="{}" x2="{}" y2="{}" {}/>\n'.format(x0,y0, x1,y1, attributes))
 
 
     elif isinstance(shape, RectShape):
@@ -431,7 +450,7 @@ width="{}" height="{}" version="1.1">
 #      fh.write(u'<circle cx="{}" cy="{}" r="6" fill="{}" />\n'.format(xc, yc, rgb_to_hex((255,0,255))))
 #      fh.write(u'<circle cx="{}" cy="{}" r="6" fill="{}" />\n'.format(xs, ys, rgb_to_hex((0,0,255))))
 #      fh.write(u'<circle cx="{}" cy="{}" r="6" fill="{}" />\n'.format(xe, ye, rgb_to_hex((0,255,255))))
-      
+
       fh.write(u'<path d="M{},{} A{},{} 0, {},{} {},{}" {}/>\n'.format(xs,ys, xr,yr, lflag, sflag, xe,ye, attributes))
 
     elif isinstance(shape, PathShape):
@@ -441,16 +460,20 @@ width="{}" height="{}" version="1.1">
 #        c.move_to(*n0)
 
       pp = shape.nodes[0]
+      nl = []
 
       for n in shape.nodes:
         if n == 'z':
-          c.close_path()
+          #c.close_path()
+          nl.append('z')
           break
         elif len(n) == 2:
-          c.line_to(*n)
+          #c.line_to(*n)
+          nl.append('L {} {}'.format(*n))
           pp = n
         elif len(n) == 6:
-          c.curve_to(*n)
+#          c.curve_to(*n)
+          nl.append('C {} {}, {} {}, {} {}'.format(*n))
           pp = n[4:6]
         elif len(n) == 5: # Arc (javascript arcto() args)
           #print('# arc:', pp)
@@ -458,7 +481,9 @@ width="{}" height="{}" version="1.1">
           
           center, start_p, end_p, rad = rounded_corner(pp, n[0:2], n[2:4], n[4])
           if rad < 0: # No arc
-            c.line_to(*end_p)
+            print('## Rad < 0')
+            #c.line_to(*end_p)
+            nl.append('L {} {}'.format(*end_p))
           else:
             # Determine angles to arc end points
             ostart_p = (start_p[0] - center[0], start_p[1] - center[1])
@@ -471,25 +496,23 @@ width="{}" height="{}" version="1.1">
             # Then if delta < 180 cw  if delta > 180 ccw
             delta = (end_a - start_a) % math.radians(360)
             
+            if delta < math.radians(180): # CW
+              sflag = 1
+            else: # CCW
+              sflag = 0
+
+            nl.append('L {} {}'.format(*start_p))
+            #nl.append('L {} {}'.format(*end_p))
+            nl.append('A {} {} 0 0 {} {} {}'.format(rad, rad, sflag, *end_p))
+
+
             #print('# start_a, end_a', math.degrees(start_a), math.degrees(end_a),
             #            math.degrees(delta))
-
-            if delta < math.radians(180): # CW
-              c.arc(center[0],center[1], rad, start_a, end_a)
-            else: # CCW
-              c.arc_negative(center[0],center[1], rad, start_a, end_a)
+            #fh.write(u'<circle cx="{}" cy="{}" r="{}" stroke="#F00" stroke-width="1" fill="none"/>\n'.format(center[0], center[1], rad))
           pp = end_p
           
           #print('# pp:', pp)
-          
 
-      if fill is not None:
-        c.set_source_rgba(*rgb_to_cairo(fill))
-        if stroke:
-          c.fill_preserve()
-        else:
-          c.fill()
+      attributes = ' '.join(['{}="{}"'.format(k,v) for k,v in attrs.iteritems()])
+      fh.write(u'<path d="{}" {}/>\n'.format(' '.join(nl), attributes))
 
-      if stroke:
-        c.set_source_rgba(*rgb_to_cairo(line_color))
-        c.stroke()

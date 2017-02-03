@@ -6,6 +6,7 @@ import sys, copy, re, argparse
 
 from nucanvas import DrawStyle, NuCanvas
 from nucanvas.cairo_backend import CairoSurface
+from nucanvas.svg_backend import SvgSurface
 from vhdl_extract import VhdlExtractor
 import nucanvas.color.sinebow as sinebow
 
@@ -88,8 +89,9 @@ class Pin(object):
     return g
     
   def text_width(self, c, font_params):
-    x0, y0, x1, y1 = c.surf.text_bbox(self.text, font_params)
+    x0, y0, x1, y1, baseline = c.surf.text_bbox(self.text, font_params)
     w = abs(x1 - x0)
+    print('## TW:', w)
     return self.padding + w
 
 
@@ -159,7 +161,7 @@ class PinSection(object):
 
     title_font = ('Times', 12, 'italic')
     if self.show_name and self.name is not None: # Compute title offset
-      x0,y0, x1,y1 = c.surf.text_bbox(self.name, title_font)
+      x0,y0, x1,y1, baseline = c.surf.text_bbox(self.name, title_font)
       toff = y1 - y0
 
     top = -dy/2 - self.padding
@@ -360,7 +362,11 @@ if __name__ == '__main__':
   for entity_data in components:
     fname = entity_data['name'] + '.' + args.output
     print('Creating symbol for "{}"'.format(entity_data['name']))
-    surf = CairoSurface(fname, style, padding=5, scale=1)
+    if args.output == 'svg':
+      surf = SvgSurface(fname, style, padding=5, scale=1)
+    else:
+      surf = CairoSurface(fname, style, padding=5, scale=1)
+
     nc = NuCanvas(surf)
     
     #print(entity_data)
