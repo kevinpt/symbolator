@@ -417,7 +417,7 @@ if __name__ == '__main__':
     PathShape(((0,-7), (0,7), (7,0), 'z'), fill=(255,255,255), width=1),
     (0,0), 'auto', None)
 
-
+  # Render every component from every file into an image
   for source, components in all_components.iteritems():
     for entity_data in components:
       fname = entity_data['name'] + '.' + args.output
@@ -438,110 +438,3 @@ if __name__ == '__main__':
       sym = make_symbol(entity_data)
       sym.draw(0,0, nc)
       nc.render()
-
-  #surf.draw_bbox = True
-
-##  surf.add_shape_class(DoubleRectShape, cairo_draw_DoubleRectShape)
-#
-#  nc = NuCanvas(surf)
-#
-#  nc.add_marker('arrow_fwd',
-#    PathShape(((0,-4), (2,-1, 2,1, 0,4), (8,0), 'z'), fill=(0,0,0), width=0),
-#    (3.2,0), 'auto', None)
-#
-#  nc.add_marker('arrow_back',
-#    PathShape(((0,-4), (-2,-1, -2,1, 0,4), (-8,0), 'z'), fill=(0,0,0), width=0),
-#    (-3.2,0), 'auto', None)
-
-#  nc.add_marker('bubble',
-#    OvalShape(-3,-3, 3,3, fill=(255,255,255), width=1),
-#    (0,0), 'auto', None)
-
-#  nc.add_marker('clock',
-#    PathShape(((0,-7), (0,7), (7,0), 'z'), fill=(255,255,255), width=1),
-#    (0,0), 'auto', None)
-
-#
-#  section = PinSection('Timing', fill=(200,150,200))
-#  section.add_pin(Pin('Clock', clocked=True))
-#  section.add_pin(Pin('Reset', bidir=True))
-#  section.add_pin(Pin('Data[7:0]', bus=True, bubble=True))
-#  section.add_pin(Pin('ClockM', side='r', clocked=True))
-#  section.add_pin(Pin('Data[7:0]', bus=True, side='r', bidir=True))
-#  section.add_pin(Pin('Data[7:0]', side='r', bidir=True))
-#  #section.add_pin(Pin('Hello world', side='r'))
-#
-#  section2 = copy.deepcopy(section)
-#  section2.name = 'Control'
-#  section2.fill = (230,210,200)
-#
-#  #section2.add_pin(Pin('Really long pin'))
-#
-#  sym = Symbol([section, section2])
-#
-#  gsect = PinSection('Generic', fill=(200,200,200), line_color=(100,100,100))
-#  gsect.add_pin(Pin('SIZE'))
-#  gsect.add_pin(Pin('DATA_BUS'))
-#  gsym = Symbol([gsect], line_color=(100,100,100))
-#
-#  vsym = HdlSymbol([gsym, sym])
-#
-#  #vsym.draw(0,0, nc)
-#
-#
-#  entity_data = {
-#    'name': 'my_entity',
-#    'generic': [
-#      ('G_FOO',),
-#      ('G_BAR',)
-#    ],
-#    'port': [
-#      ['Control', [
-#      ('Clock', 'in', 'std_ulogic'),
-#      ('Reset_N', 'in', 'std_ulogic'),
-#      ('Data[G_FOO:0]', 'inout', 'std_ulogic_vector[G_FOO:0]',)
-#      ]],
-#      [None, [
-#      ('Clock2', 'in'),
-#      ('Reset2', 'in'),
-#      ('Data[31:-5]', 'out'),
-#      (u'DataX[0\u27994]', 'inout')
-#      ]],
-#      [None, [
-#      ('Clock2', 'in'),
-#      ('Reset2', 'in'),
-#      ('Data[31:-5]', 'out'),
-#      (u'DataX[0\u27994]', 'inout')
-#      ]]
-#    ]
-#  }
-
-
-  #nc.ungroup_all()
-
-#  nc.create_text(0,0, anchor='nw', text='Data[7:0]MMM', font=('Times', 14, 'normal'))
-
-  #nc.create_rectangle(-10,-10, 400, 400)
-
-  #nc.create_path(((0,0), (10,10), (300, 20, 200, 200, 30), (200, 200), (40,300), 'z'))
-#  nc.create_path(((0,0), (10,10), (150,80, 300,10, 30), (300,10, 220,200, 30), (220, 200), (40,300), 'z'))
-#
-#  nc.create_line(100,300, 150,310, arrow='last', width=4)
-#
-#  nc.add_marker('box', RectShape(0,0, 2,2, options={'fill':(255,0,0), 'width':0}),
-#    (1,1), 'auto')
-
-#  nc.add_marker('arrow2', PathShape(((0,0), (0,2), (2,0), (0,-2)), fill=(255,0,0,127), width=0),
-#    (0.8,0), 'auto')
-
-#  nc.add_marker('arrow_fwd',
-#    PathShape(((0,-1), (0.5,-1, 0.5,1, 0,1), (2,0), 'z'), fill=(0,0,0), width=0),
-#    (0.8,0), 'auto')
-
-#  nc.add_marker('arrow_back',
-#    PathShape(((0,-1), (-0.5,-1, -0.5,1, 0,1), (-2,0), 'z'), fill=(0,0,0), width=0),
-#    (-0.8,0), 'auto')
-
-#
-#  nc.create_line(100,200, 150,210, marker_start='arrow_back', marker_end='arrow_fwd', marker_mid='box', width=2)
-
