@@ -291,7 +291,6 @@ class CairoSurface(BaseSurface):
     
   def draw_marker(self, name, mp, tp, width, c):
     if name in self.markers:
-      #print('# MARKER:', name)
       m_shape, ref, orient, units = self.markers[name]
 
       c.save()
@@ -304,11 +303,10 @@ class CairoSurface(BaseSurface):
         c.rotate(angle)
 
       if units == 'stroke':
-        print('  SCALE:', width)
+        #print('  SCALE:', width)
         c.scale(width,width)
         
       c.translate(-ref[0], -ref[1])
-      
       
       self.draw_shape(m_shape)
       c.restore()

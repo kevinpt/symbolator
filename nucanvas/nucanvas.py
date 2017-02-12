@@ -14,6 +14,12 @@ class NuCanvas(GroupShape):
     GroupShape.__init__(self, surf, 0, 0, {})
     self.markers = {}
     
+  def set_surface(self, surf):
+    self.surf = surf
+    
+  def clear_shapes(self):
+    self.shapes = []
+    
   def _get_shapes(self, item=None):
     # Filter shapes
     if item is None or item == 'all':
