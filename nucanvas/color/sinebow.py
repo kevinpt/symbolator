@@ -8,13 +8,14 @@ def sinebow(hue):
   rgb = sin(pi * hue), sin(pi * (hue + 1.0/3.0)), sin(pi * (hue + 2.0/3.0))
   return tuple(int(255  * c**2) for c in rgb)
  
-def distinct_color_sequence():
+def distinct_color_sequence(hue=0.0):
+  # Hue is normalized from 0-1.0 for one revolution
+  
   phi = (1 + 5**0.5) / 2
   golden_angle = phi #1.0 / phi**2
   
   #print('# GA:', math.degrees(golden_angle), phi)
- 
-  hue = 0.0 # Normalized from 0-1.0 for one revolution
+  
   while(True):
     yield sinebow(hue)
     hue += golden_angle
