@@ -113,6 +113,9 @@ class VhdlExtractor(object):
         bus = True if pin_type.lower() in self.array_types else False
 
         pin_range = m.group(4)
+        if pin_range is not None and pin_range.count('(') > pin_range.count(')'):
+          pin_range = pin_range + ')' # Hack to handle single function call in range
+
         if pin_range: # Reformat it and append to the type
           pin_range = pin_range[1:-1]
           pin_range = pin_range.replace('downto', ':').replace('to', u'\u2799').replace(' ', '')
