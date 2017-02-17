@@ -321,6 +321,16 @@ class GroupShape(BaseShape):
       
     return self._bbox
 
+  def dump_shapes(self, indent=0):
+    print('{}{}'.format('  '*indent, repr(self)))
+
+    indent += 1
+    for s in self.shapes:
+      if isinstance(s, GroupShape):
+        s.dump_shapes(indent)
+      else:
+        print('{}{}'.format('  '*indent, repr(s)))
+
 class LineShape(BaseShape):
   def __init__(self, x0, y0, x1, y1, options=None, **kwargs):
     BaseShape.__init__(self, options, **kwargs)
