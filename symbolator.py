@@ -13,6 +13,15 @@ import nucanvas.color.sinebow as sinebow
 
 __version__ = '0.5'
 
+
+def xml_escape(txt):
+  txt = txt.replace('&', '&amp;')
+  txt = txt.replace('<', '&lt;')
+  txt = txt.replace('>', '&gt;')
+  txt = txt.replace('"', '&quot;')
+  return txt
+
+
 class Pin(object):
   def __init__(self, text, side='l', bubble=False, clocked=False, bus=False, bidir=False, data_type=None):
     self.text = text
@@ -29,12 +38,12 @@ class Pin(object):
 
   @property
   def styled_text(self):
-    return re.sub(r'(\[.*\])', r'<span foreground="red">\1</span>', self.text)
+    return re.sub(r'(\[.*\])', r'<span foreground="red">\1</span>', xml_escape(self.text))
 
   @property
   def styled_type(self):
     if self.data_type:
-      return re.sub(r'(\[.*\])', r'<span foreground="pink">\1</span>', self.data_type)
+      return re.sub(r'(\[.*\])', r'<span foreground="pink">\1</span>', xml_escape(self.data_type))
     else:
       return None
 
@@ -83,9 +92,6 @@ class Pin(object):
 
       if self.data_type:
         g.create_text(xs+self.padding, 0, anchor='w', text=self.styled_type, text_color=(150,150,150))
-
-    g.create_group(3,4)
-
 
     return g
 
@@ -437,4 +443,8 @@ if __name__ == '__main__':
 
       sym = make_symbol(entity_data)
       sym.draw(0,0, nc)
+
+      #nc.dump_shapes()
       nc.render()
+
+

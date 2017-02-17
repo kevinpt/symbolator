@@ -4,6 +4,7 @@ import io
 import os
 import math
 import StringIO
+import xml.etree.ElementTree as ET
 
 #import cairo # For text bbox
 from shapes import *
@@ -79,7 +80,7 @@ class SvgSurface(BaseSurface):
     self.fh = None
     
   svg_header = u'''<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created by Syntax-Trax http://kevinpt.github.io/syntax-trax -->
+<!-- Created by Symbolator http://kevinpt.github.io/symbolator -->
 <svg xmlns="http://www.w3.org/2000/svg"
 xmlns:xlink="http://www.w3.org/1999/xlink"
 xml:space="preserve"
@@ -177,10 +178,28 @@ width="{}" height="{}" viewBox="{}" version="1.1">
 
     font_styles = '\n'.join(font_css)
 
+    # Determine which markers are in use
+    class MarkerVisitor(object):
+      def __init__(self):
+        self.markers = set()
+
+      def get_marker_info(self, s):
+        mark = s.param('marker')
+        if mark: self.markers.add(mark)
+        mark = s.param('marker_start')
+        if mark: self.markers.add(mark)
+        mark = s.param('marker_segment')
+        if mark: self.markers.add(mark)
+        mark = s.param('marker_end')
+        if mark: self.markers.add(mark)
+
+    mv = MarkerVisitor()
+    visit_shapes(canvas, mv.get_marker_info)
+    used_markers = mv.markers.intersection(set(self.markers.keys()))
+
     # Generate markers
     markers = []
-    for mname in self.markers.iterkeys():
-      #print('## MARKER:', mname)
+    for mname in used_markers:
 
       m_shape, ref, orient, units = self.markers[mname]
       mx0, my0, mx1, my1 = m_shape.bbox
@@ -188,11 +207,14 @@ width="{}" height="{}" viewBox="{}" version="1.1">
       mw = mx1 - mx0
       mh = my1 - my0
 
+      # Unfortunately it looks like browser SVG rendering doesn't properly support
+      # marker viewBox that doesn't have an origin at 0,0 but Eye of Gnome does. 
+
       attrs = {
         'id': mname,
         'markerWidth': mw,
         'markerHeight': mh,
-        'viewBox': ' '.join(str(p) for p in (mx0, my0, mw, mh)),
+        'viewBox': ' '.join(str(p) for p in (0, 0, mw, mh)),
         'refX': ref[0] - mx0,
         'refY': ref[1] - my0,
         'orient': orient,
@@ -203,7 +225,8 @@ width="{}" height="{}" viewBox="{}" version="1.1">
 
       buf = StringIO.StringIO()
       self.draw_shape(m_shape, buf)
-      svg_shapes = buf.getvalue()
+      # Shift enerything inside a group so that the viewBox origin is 0,0
+      svg_shapes = '<g transform="translate({},{})">{}</g>\n'.format(-mx0, -my0, buf.getvalue())
       buf.close()
 
       markers.append(u'<marker {}>\n{}</marker>'.format(attributes, svg_shapes))
@@ -232,6 +255,18 @@ width="{}" height="{}" viewBox="{}" version="1.1">
   def text_bbox(self, text, font_params, spacing=0):
     return CairoSurface.cairo_text_bbox(text, font_params, spacing, self.scale)
 
+  @staticmethod
+  def convert_pango_markup(text):
+    t = '<X>{}</X>'.format(text)
+    root = ET.fromstring(t)
+    # Convert <span> to <tspan>
+    for child in root:
+      if child.tag == 'span':
+        child.tag = 'tspan'
+        if 'foreground' in child.attrib:
+          child.attrib['fill'] = child.attrib['foreground']
+          del child.attrib['foreground']
+    return ET.tostring(root)[3:-4]
 
   @staticmethod
   def draw_text(x, y, text, css_class, text_color, baseline, anchor, anchor_off, spacing, fh):
@@ -254,7 +289,10 @@ width="{}" height="{}" viewBox="{}" version="1.1">
       attrs['style'] = 'fill:{}'.format(rgb_to_hex(text_color))
 
     attributes = ' '.join(['{}="{}"'.format(k,v) for k,v in attrs.iteritems()])
-    fh.write(u'<text class="{}" x="{}" y="{}" {}>{}</text>\n'.format(css_class, x, y, attributes, xml_escape(text)))
+
+    text = SvgSurface.convert_pango_markup(text)
+
+    fh.write(u'<text class="{}" x="{}" y="{}" {}>{}</text>\n'.format(css_class, x, y, attributes, text))
 
 
   def draw_shape(self, shape, fh=None):
@@ -462,17 +500,15 @@ width="{}" height="{}" viewBox="{}" version="1.1">
       pp = shape.nodes[0]
       nl = []
 
-      for n in shape.nodes:
+      for i, n in enumerate(shape.nodes):
         if n == 'z':
-          #c.close_path()
           nl.append('z')
           break
         elif len(n) == 2:
-          #c.line_to(*n)
-          nl.append('L {} {}'.format(*n))
+          cmd = 'L' if i > 0 else 'M'
+          nl.append('{} {} {}'.format(cmd, *n))
           pp = n
         elif len(n) == 6:
-#          c.curve_to(*n)
           nl.append('C {} {}, {} {}, {} {}'.format(*n))
           pp = n[4:6]
         elif len(n) == 5: # Arc (javascript arcto() args)
