@@ -398,13 +398,21 @@ class ArcShape(BaseShape):
     points = [(hw * math.cos(math.radians(a)), -hh * math.sin(math.radians(a))) for a in angles]
 
     points = list(zip(*points))
-    bx0 = min(points[0]) + xc - lw
-    by0 = min(points[1]) + yc - lw
-    bx1 = max(points[0]) + xc + lw
-    by1 = max(points[1]) + yc + lw
+    x0 = min(points[0]) + xc - lw
+    y0 = min(points[1]) + yc - lw
+    x1 = max(points[0]) + xc + lw
+    y1 = max(points[1]) + yc + lw
+
+    if 'width' in self.options:
+      w = self.options['width'] / 2.0
+      # FIXME: This doesn't properly compensate for the true extrema of the stroked outline
+      x0 -= w
+      x1 += w
+      y0 -= w
+      y1 += w
 
     #print('@@ ARC BB:', (bx0,by0,bx1,by1), hw, hh, angles, start, extent)
-    return (bx0,by0,bx1,by1)
+    return (x0,y0,x1,y1)
 
 class PathShape(BaseShape):
   def __init__(self, nodes, options=None, **kwargs):
@@ -433,7 +441,15 @@ class PathShape(BaseShape):
     y0 = min(extrema[1])
     x1 = max(extrema[0])
     y1 = max(extrema[1])
-    
+
+    if 'width' in self.options:
+      w = self.options['width'] / 2.0
+      # FIXME: This doesn't properly compensate for the true extrema of the stroked outline
+      x0 -= w
+      x1 += w
+      y0 -= w
+      y1 += w
+
     return (x0, y0, x1, y1)
 
 

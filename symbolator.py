@@ -198,6 +198,7 @@ class Symbol(object):
       self.sections = sections
     else:
       self.sections = []
+
     self.line_width = 3
     self.line_color = line_color
 
@@ -230,13 +231,17 @@ class Symbol(object):
     # Add symbol outline
     c.create_rectangle(x0,y0,x1,y1, width=self.line_width, line_color=self.line_color)
 
+
     return (x0,y0, x1,y1)
 
 class HdlSymbol(object):
-  def __init__(self, symbols=None, symbol_spacing=10, width_steps=20):
+  def __init__(self, component=None, symbols=None, symbol_spacing=10, width_steps=20):
     self.symbols = symbols if symbols is not None else []
     self.symbol_spacing = symbol_spacing
     self.width_steps = width_steps
+    self.component = component
+
+
 
   def add_symbol(self, symbol):
     self.symbols.append(symbol)
@@ -248,8 +253,13 @@ class HdlSymbol(object):
     sym_width = (sym_width // self.width_steps + 1) * self.width_steps
 
     yoff = y
-    for s in self.symbols:
+    for i, s in enumerate(self.symbols):
       bb = s.draw(x, y + yoff, c, sym_width)
+
+      if i == 0 and self.component:
+        # Add component name
+        c.create_text((bb[0]+bb[2])/2.0,bb[1] - self.symbol_spacing, anchor='cs',
+          text=self.component, font=('Helvetica', 14, 'bold'))
 
       yoff += bb[3] - bb[1] + self.symbol_spacing
 
@@ -304,7 +314,7 @@ def make_section(sname, sect_pins, fill):
   return sect
 
 def make_symbol(entity_data):
-  vsym = HdlSymbol()
+  vsym = HdlSymbol(entity_data['name'])
 
   color_seq = sinebow.distinct_color_sequence(0.9)
 
