@@ -2,19 +2,22 @@
 
 from __future__ import print_function
 
-import sys, copy, re, argparse, os
+import sys, copy, re, argparse, os, errno
 
 from nucanvas import DrawStyle, NuCanvas
 from nucanvas.cairo_backend import CairoSurface
 from nucanvas.svg_backend import SvgSurface
 from nucanvas.shapes import PathShape, OvalShape
-from vhdl_extract import VhdlExtractor
 import nucanvas.color.sinebow as sinebow
+
+from code_parse import vhdl_parser as vp
+
 
 __version__ = '0.5'
 
 
 def xml_escape(txt):
+  '''Replace special characters for XML strings'''
   txt = txt.replace('&', '&amp;')
   txt = txt.replace('<', '&lt;')
   txt = txt.replace('>', '&gt;')
@@ -265,18 +268,16 @@ class HdlSymbol(object):
 
 
 
-def make_section(sname, sect_pins, fill):
+def make_section(sname, sect_pins, fill, extractor):
   sect = PinSection(sname, fill=fill)
   side = 'l'
 
   #print('## SP:', sect_pins)
   for p in sect_pins:
-    pname = p['name']
-    #pdir = 'in' if len(p) < 2 else p[1]
-    pdir = p['dir'] if 'dir' in p else 'in'
-    #data_type = None if len(p) < 3 else p[2]
-    data_type = p['type'] if 'type' in p else None
-    bus = p['bus'] if 'bus' in p else False
+    pname = p.name
+    pdir = p.mode
+    data_type = p.data_type
+    bus = extractor.is_array(p.data_type)
 
     pdir = pdir.lower()
 
@@ -313,23 +314,44 @@ def make_section(sname, sect_pins, fill):
 
   return sect
 
-def make_symbol(entity_data):
-  vsym = HdlSymbol(entity_data['name'])
+def make_symbol(comp, extractor):
+  vsym = HdlSymbol(comp.name)
 
   color_seq = sinebow.distinct_color_sequence(0.9)
 
   #print('## edata:', entity_data['port'])
 
-  if 'generic' in entity_data:
-    s = make_section(None, entity_data['generic'], (200,200,200))
+  if len(comp.generics) > 0: #'generic' in entity_data:
+    s = make_section(None, comp.generics, (200,200,200), extractor)
     s.line_color = (100,100,100)
     gsym = Symbol([s], line_color=(100,100,100))
     vsym.add_symbol(gsym)
-  if 'port' in entity_data:
+  if len(comp.ports) > 0: #'port' in entity_data:
     psym = Symbol()
-    for sdata in entity_data['port']:
+
+    # Break ports into sections
+    #print('## SECT:', comp.sections, comp.ports)
+
+    cur_sect = []
+    sections = []
+    sect_name = comp.sections[0] if 0 in comp.sections else None
+    for i,p in enumerate(comp.ports):
+      #print('## PORT:', i, p)
+      if i in comp.sections and len(cur_sect) > 0: # Finish previous section
+        sections.append((sect_name, cur_sect))
+        cur_sect = []
+        sect_name = comp.sections[i]
+      cur_sect.append(p)
+
+    if len(cur_sect) > 0:
+      sections.append((sect_name, cur_sect))
+
+    #sections = [(None, comp.ports)]
+    #print('## SECTIONS:', sections)
+
+    for sdata in sections: #entity_data['port']:
       #print('## SDAT:', sdata[0])
-      s = make_section(sdata[0], sdata[1], sinebow.lighten(next(color_seq), 0.75))
+      s = make_section(sdata[0], sdata[1], sinebow.lighten(next(color_seq), 0.75), extractor)
       psym.add_section(s)
 
     vsym.add_symbol(psym)
@@ -338,10 +360,12 @@ def make_symbol(entity_data):
 
 def parse_args():
   parser = argparse.ArgumentParser(description='HDL symbol generator')
-  parser.add_argument('-i', '--input', dest='input', action='store', help='HDL source')
-  parser.add_argument('-o', '--output', dest='output', action='store', help='Output format')
-  parser.add_argument('-L', '--library', dest='lib_path', action='store',
+  parser.add_argument('-i', '--input', dest='input', action='store', help='HDL source ("-" for STDIN)')
+  parser.add_argument('-o', '--output', dest='output', action='store', help='Output file')
+  parser.add_argument('-f', '--format', dest='format', action='store', default='svg', help='Output format')
+  parser.add_argument('-L', '--library', dest='lib', action='store',
     default='.', help='Library path')
+  parser.add_argument('-s', '--save-lib', dest='save_lib', action='store', help='Save type def cache file')
   parser.add_argument('-t', '--transparent', dest='transparent', action='store_true',
     default=False, help='Transparent background')
   parser.add_argument('--scale', dest='scale', action='store', default='1', help='Scale image')
@@ -357,15 +381,12 @@ def parse_args():
   if args.input is None and len(unparsed) > 0:
     args.input = unparsed[0]
 
-  if args.input is None:
-    print('Error: input file is required')
+  if args.format.lower() in ('png', 'svg', 'pdf', 'ps', 'eps'):
+    args.format = args.format.lower()
+
+  if args.input == '-' and args.output is None: # Reading from stdin: must have full output file name
+    print('Error: output file is required')
     sys.exit(1)
-
-  if args.output is None: # Default to png
-    args.output = 'png'
-
-  if args.output.lower() in ('png', 'svg', 'pdf', 'ps', 'eps'):
-    args.output = args.output.lower()
 
   args.scale = float(args.scale)
 
@@ -382,37 +403,69 @@ def file_search(base_dir, extensions=('.vhdl', '.vhd')):
 
   return hdl_files
 
-if __name__ == '__main__':
+def create_directories(fname):
+  dirname = os.path.dirname(fname)
+  if dirname and not os.path.exists(dirname):
+    try:
+      os.makedirs(dirname)
+    except OSError as e:
+      if e.errno != errno.EEXIST:
+        raise
 
+
+def main():
   args = parse_args()
 
   style = DrawStyle()
   style.line_color = (0,0,0)
 
-  ve = VhdlExtractor()
+  ve = vp.VhdlExtractor()
 
-  # Find all library files
-  print('Scanning library:', args.lib_path)
-  flist = file_search(args.lib_path)
-  if os.path.isfile(args.input):
-    flist.append(args.input)
+  if os.path.isfile(args.lib):
+    # This is a file containing previously parsed array type names
+    ve.load_array_types(args.lib)
 
-  # Find all of the array types
-  ve.extract_array_types(flist)
+  else: # args.lib is a path
+    # Find all library files
+    print('Scanning library:', args.lib)
+    flist = file_search(args.lib)
+    if args.input and os.path.isfile(args.input):
+      flist.append(args.input)
 
-  if os.path.isfile(args.input):
-    all_components = {args.input: ve.extract_components(args.input)}
+    # Find all of the array types
+    ve.register_files_array_types(flist)
+
+    print('## ARRAYS:', ve.array_types)
+
+  if args.save_lib:
+    print('Saving type defs to "{}".'.format(args.save_lib))
+    ve.save_array_types(args.save_lib)
+
+
+  if args.input is None:
+    sys.exit(0)
+
+  if args.input == '-': # Read from stdin
+    all_components = {'<stdin>': ve.extract_components(''.join(list(sys.stdin)))}
+    # Output is a named file
+
+  elif os.path.isfile(args.input):
+    all_components = {args.input: ve.extract_file_components(args.input)}
+    # Output is a directory
 
   elif os.path.isdir(args.input):
     flist = file_search(args.input)
-    all_components = {f: ve.extract_components(f) for f in flist}
+    all_components = {f: ve.extract_file_components(f) for f in flist}
+    # Output is a directory
 
   else:
     print('ERROR: Invalid input source')
     sys.exit(1)
 
-  #print(all_components)
-  
+  print('## ALL COMPS:', all_components)
+
+  if args.output:
+    create_directories(args.output)
 
   nc = NuCanvas(None)
 
@@ -435,13 +488,17 @@ if __name__ == '__main__':
 
   # Render every component from every file into an image
   for source, components in all_components.iteritems():
-    for entity_data in components:
-      fname = entity_data['name'] + '.' + args.output
-      base = os.path.splitext(os.path.basename(source))[0]
-      fname = '{}-{}.{}'.format(base, entity_data['name'], args.output)
-      print('Creating symbol for {} "{}"'.format(source, entity_data['name']))
+    for comp in components:
+      if source == '<stdin>':
+        fname = args.output
+      else:
+        base = os.path.splitext(os.path.basename(source))[0]
+        fname = '{}-{}.{}'.format(base, comp.name, args.format)
+        if args.output:
+          fname = os.path.join(args.output, fname)
+      print('Creating symbol for {} "{}"\n\t-> {}'.format(source, comp.name, fname))
       #print('## Entity:', entity_data)
-      if args.output == 'svg':
+      if args.format == 'svg':
         surf = SvgSurface(fname, style, padding=5, scale=1)
       else:
         surf = CairoSurface(fname, style, padding=5, scale=1)
@@ -451,10 +508,11 @@ if __name__ == '__main__':
 
       #print(entity_data)
 
-      sym = make_symbol(entity_data)
+      sym = make_symbol(comp, ve)
       sym.draw(0,0, nc)
 
       #nc.dump_shapes()
       nc.render()
 
-
+if __name__ == '__main__':
+  main()
