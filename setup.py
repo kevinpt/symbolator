@@ -1,7 +1,10 @@
-import ez_setup
-ez_setup.use_setuptools()
 
-from setuptools import setup
+import sys
+
+try:
+  from setuptools import setup
+except ImportError:
+	sys.exit('ERROR: setuptools is required.\nTry using "pip install setuptools".')
 
 # Use README.rst for the long description
 with open('README.rst') as fh:
@@ -30,8 +33,8 @@ setup(name='symbolator',
     description='HDL symbol generator',
     long_description=long_description,
     platforms = ['Any'],
-    install_requires = [],
-    packages = ['nucanvas', 'code_parse'],
+    install_requires = ['hdlparse>=0.9'],
+    packages = ['nucanvas', 'nucanvas/color'],
     py_modules = ['symbolator', 'ez_setup'],
     entry_points = {
         'console_scripts': ['symbolator = symbolator:main']

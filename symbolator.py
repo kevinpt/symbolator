@@ -10,10 +10,10 @@ from nucanvas.svg_backend import SvgSurface
 from nucanvas.shapes import PathShape, OvalShape
 import nucanvas.color.sinebow as sinebow
 
-from code_parse import vhdl_parser as vp
+import hdlparse.vhdl_parser as vp
 
 
-__version__ = '0.5'
+__version__ = '0.6'
 
 
 def xml_escape(txt):
@@ -41,12 +41,12 @@ class Pin(object):
 
   @property
   def styled_text(self):
-    return re.sub(r'(\[.*\])', r'<span foreground="red">\1</span>', xml_escape(self.text))
+    return re.sub(r'(\[.*\])', r'<span foreground="#039BE5">\1</span>', xml_escape(self.text))
 
   @property
   def styled_type(self):
     if self.data_type:
-      return re.sub(r'(\[.*\])', r'<span foreground="pink">\1</span>', xml_escape(self.data_type))
+      return re.sub(r'(\[.*\])', r'<span foreground="#039BE5">\1</span>', xml_escape(self.data_type))
     else:
       return None
 
@@ -314,8 +314,9 @@ def make_section(sname, sect_pins, fill, extractor):
 
   return sect
 
-def make_symbol(comp, extractor):
-  vsym = HdlSymbol(comp.name)
+def make_symbol(comp, extractor, title=False):
+
+  vsym = HdlSymbol() if title == False else HdlSymbol(comp.name)
 
   color_seq = sinebow.distinct_color_sequence(0.9)
 
@@ -369,6 +370,7 @@ def parse_args():
   parser.add_argument('-t', '--transparent', dest='transparent', action='store_true',
     default=False, help='Transparent background')
   parser.add_argument('--scale', dest='scale', action='store', default='1', help='Scale image')
+  parser.add_argument('--title', dest='title', action='store_true', default=False, help='Omit component nameabove symbol')
   parser.add_argument('-v', '--version', dest='version', action='store_true', default=False, help='Syntrax version')
 
   args, unparsed = parser.parse_known_args()
@@ -404,14 +406,17 @@ def file_search(base_dir, extensions=('.vhdl', '.vhd')):
   return hdl_files
 
 def create_directories(fname):
-  dirname = os.path.dirname(fname)
-  if dirname and not os.path.exists(dirname):
-    try:
-      os.makedirs(dirname)
-    except OSError as e:
-      if e.errno != errno.EEXIST:
-        raise
+  try:
+    os.makedirs(os.path.dirname(fname))
+  except OSError as e:
+    if e.errno != errno.EEXIST:
+      raise
 
+def reformat_array_params(vo):
+  for p in vo.ports:
+    data_type = p.data_type.replace(' downto ', ':').replace(' to ', u'\u2799').replace(' ', '')
+    data_type = re.sub(r'([^(]+)\((.*)\)$', r'\1[\2]', data_type)
+    p.data_type = data_type
 
 def main():
   args = parse_args()
@@ -435,7 +440,7 @@ def main():
     # Find all of the array types
     ve.register_files_array_types(flist)
 
-    print('## ARRAYS:', ve.array_types)
+    #print('## ARRAYS:', ve.array_types)
 
   if args.save_lib:
     print('Saving type defs to "{}".'.format(args.save_lib))
@@ -462,7 +467,7 @@ def main():
     print('ERROR: Invalid input source')
     sys.exit(1)
 
-  print('## ALL COMPS:', all_components)
+  #print('## ALL COMPS:', all_components)
 
   if args.output:
     create_directories(args.output)
@@ -489,6 +494,7 @@ def main():
   # Render every component from every file into an image
   for source, components in all_components.iteritems():
     for comp in components:
+      reformat_array_params(comp)
       if source == '<stdin>':
         fname = args.output
       else:
@@ -508,7 +514,7 @@ def main():
 
       #print(entity_data)
 
-      sym = make_symbol(comp, ve)
+      sym = make_symbol(comp, ve, args.title)
       sym.draw(0,0, nc)
 
       #nc.dump_shapes()
