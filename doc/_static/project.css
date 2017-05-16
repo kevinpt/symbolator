@@ -1,0 +1,143 @@
+
+@font-face {
+  font-family: 'Kreon';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Kreon Light'), local('Kreon-Light'), url('Kreon-Light.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Kreon';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Kreon Regular'), local('Kreon-Regular'), url('Kreon-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Kreon';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Kreon Bold'), local('Kreon-Bold'), url('Kreon-Bold.woff2') format('woff2');
+}
+
+
+body {
+    font-size: medium;
+    background-color: white;
+    color: #000;
+    margin: 0;
+    padding: 0 1.1em 0 0;
+}
+
+div.document {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 0 auto;
+    padding: 0 0em 0 1em;
+}
+
+pre, code {
+    font-size: small;
+}
+
+
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4 {
+    font-family: "Kreon", "goudy old style", "minion pro", "bell mt", Georgia, "Hiragino Mincho Pro", serif;
+}
+
+div.body h1,
+div.body h2 {
+    font-weight: bold;
+}
+
+div.sphinxsidebar p,
+div.sphinxsidebar span,
+div.sphinxsidebar h1,
+div.sphinxsidebar h2,
+div.sphinxsidebar h3,
+div.sphinxsidebar h4 {
+
+    font-family: "Kreon", "goudy old style", "minion pro", "bell mt", Georgia, "Hiragino Mincho Pro", serif;
+}
+
+table.docutils {
+    border-left: 1px solid #aaa;
+    border-right: 1px solid #aaa;
+    border-top: 2px solid #92a6c4;
+    border-bottom: 4px solid #92a6c4;
+    -moz-box-shadow: 2px 2px 4px #eee;
+    -webkit-box-shadow: 2px 2px 4px #eee;
+    box-shadow: 2px 2px 4px #eee;
+    margin-bottom: 2em;
+}
+
+table.docutils td, table.docutils th {
+    border-style: none;
+    padding: 0.25em 0.7em;
+}
+
+table.docutils th {
+  border-bottom: 1px solid #92a6c4;
+}
+
+
+tt.descname {
+  font-size: 1.25em;
+}
+
+pre {
+  background: #E9ECF5;
+
+  -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+   -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+dl.macro {
+  margin-top: 5em;
+}
+
+
+div.dl-button a, div.dl-button a:hover {
+  display: block;
+  height: 36px;
+  background: #008c00;
+
+  color: white;
+  font: 16px/36px Helvetica, Verdana, sans-serif;
+  text-decoration: none;
+  text-align: center;
+  text-transform: uppercase;
+
+  border: 4px solid white;
+  margin: 2px;
+
+  -webkit-border-radius: 10px;
+   -moz-border-radius: 10px;
+        border-radius: 10px;
+
+  -webkit-box-shadow: 0 2px 7px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+     -moz-box-shadow: 0 2px 7px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+          box-shadow: 0 2px 7px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+div.dl-button a:hover {
+
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#008c00+0,007200+100 */
+  background: #008c00; /* Old browsers */
+  background: -moz-linear-gradient(top,  #008c00 0%, #007200 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#008c00), color-stop(100%,#007200)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #008c00 0%,#007200 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #008c00 0%,#007200 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #008c00 0%,#007200 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #008c00 0%,#007200 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#008c00', endColorstr='#007200',GradientType=0 ); /* IE6-9 */
+
+}
+
+p.caption {
+     font-family: "Kreon", "goudy old style", "minion pro", "bell mt", Georgia, "Hiragino Mincho Pro", serif;
+  font-size: medium;
+  font-weight: bold;
+}
