@@ -1,4 +1,7 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+# Copyright © 2017 Kevin Thibedeau
+# Distributed under the terms of the MIT license
 
 from __future__ import print_function
 
@@ -10,7 +13,8 @@ from nucanvas.svg_backend import SvgSurface
 from nucanvas.shapes import PathShape, OvalShape
 import nucanvas.color.sinebow as sinebow
 
-import hdlparse.vhdl_parser as vp
+import hdlparse.vhdl_parser as vhdl
+import hdlparse.verilog_parser as vlog
 
 
 __version__ = '0.6'
@@ -281,7 +285,14 @@ def make_section(sname, sect_pins, fill, extractor):
 
     pdir = pdir.lower()
 
-    if pdir == 'in':
+    # Convert Verilog modes
+    if pdir == 'input':
+      pdir = 'in'
+    if pdir == 'output':
+      pdir = 'out'
+
+    # Determine which side the pin is on
+    if pdir in ('in'):
       side = 'l'
     elif pdir in ('out', 'inout'):
       side = 'r'
@@ -292,14 +303,11 @@ def make_section(sname, sect_pins, fill, extractor):
       pin.bidir = True
 
     # Check for pin name patterns
-    #pname = pname.lower()
-
     pin_patterns = {
       'clock': re.compile(r'(^cl(oc)?k)|(cl(oc)?k$)', re.IGNORECASE),
       'bubble': re.compile(r'_n$', re.IGNORECASE),
       'bus': re.compile(r'(\[.*\]$)', re.IGNORECASE)
     }
-
 
     if pdir == 'in' and pin_patterns['clock'].search(pname):
       pin.clocked = True
@@ -318,9 +326,9 @@ def make_symbol(comp, extractor, title=False):
 
   vsym = HdlSymbol() if title == False else HdlSymbol(comp.name)
 
-  color_seq = sinebow.distinct_color_sequence(0.9)
+  color_seq = sinebow.distinct_color_sequence(0.6)
 
-  #print('## edata:', entity_data['port'])
+  #print('## PORTS:', comp.ports)
 
   if len(comp.generics) > 0: #'generic' in entity_data:
     s = make_section(None, comp.generics, (200,200,200), extractor)
@@ -371,6 +379,7 @@ def parse_args():
     default=False, help='Transparent background')
   parser.add_argument('--scale', dest='scale', action='store', default='1', help='Scale image')
   parser.add_argument('--title', dest='title', action='store_true', default=False, help='Omit component nameabove symbol')
+  parser.add_argument('--verilog', dest='verilog', action='store_true', default=False, help='Parse stdin as Verilog')
   parser.add_argument('-v', '--version', dest='version', action='store_true', default=False, help='Syntrax version')
 
   args, unparsed = parser.parse_known_args()
@@ -394,6 +403,11 @@ def parse_args():
 
   return args
 
+#def is_vhdl(fname):
+#  return os.path.splitext(fname)[1].lower() in ('.vhdl', '.vhd')
+
+#def is_verilog(fname):
+#  return os.path.splitext(fname)[1].lower() in ('.vlog', '.v')
 
 def file_search(base_dir, extensions=('.vhdl', '.vhd')):
   extensions = set(extensions)
@@ -409,13 +423,22 @@ def create_directories(fname):
   try:
     os.makedirs(os.path.dirname(fname))
   except OSError as e:
-    if e.errno != errno.EEXIST:
+    if e.errno != errno.EEXIST and e.errno != errno.ENOENT:
       raise
 
 def reformat_array_params(vo):
   for p in vo.ports:
-    data_type = p.data_type.replace(' downto ', ':').replace(' to ', u'\u2799').replace(' ', '')
+    # Replace VHDL downto and to
+    data_type = p.data_type.replace(' downto ', ':').replace(' to ', u'\u2799')
+    # Convert to Verilog style array syntax
     data_type = re.sub(r'([^(]+)\((.*)\)$', r'\1[\2]', data_type)
+
+    # Split any array segment
+    pieces = data_type.split('[')
+    if len(pieces) > 1:
+      # Strip all white space from array portion
+      data_type = '['.join([pieces[0], pieces[1].replace(' ', '')])
+
     p.data_type = data_type
 
 def main():
@@ -424,43 +447,65 @@ def main():
   style = DrawStyle()
   style.line_color = (0,0,0)
 
-  ve = vp.VhdlExtractor()
+  vhdl_ex = vhdl.VhdlExtractor()
+  vlog_ex = vlog.VerilogExtractor()
 
-  if os.path.isfile(args.lib):
+  if os.path.isfile(args.lib) and vhdl.is_vhdl(args.lib):
     # This is a file containing previously parsed array type names
-    ve.load_array_types(args.lib)
+    vhdl_ex.load_array_types(args.lib)
 
   else: # args.lib is a path
     # Find all library files
     print('Scanning library:', args.lib)
-    flist = file_search(args.lib)
+    flist = file_search(args.lib, extensions=('.vhdl', '.vhd', '.vlog', '.v')) # Get VHDL and Verilog files
     if args.input and os.path.isfile(args.input):
       flist.append(args.input)
 
     # Find all of the array types
-    ve.register_files_array_types(flist)
+    vhdl_ex.register_files_array_types(flist)
 
-    #print('## ARRAYS:', ve.array_types)
+    #print('## ARRAYS:', vhdl_ex.array_types)
 
   if args.save_lib:
     print('Saving type defs to "{}".'.format(args.save_lib))
-    ve.save_array_types(args.save_lib)
+    vhdl_ex.save_array_types(args.save_lib)
 
 
   if args.input is None:
     sys.exit(0)
 
   if args.input == '-': # Read from stdin
-    all_components = {'<stdin>': ve.extract_components(''.join(list(sys.stdin)))}
+    if args.verilog:
+      all_components = {'<stdin>': [(c, vlog_ex) for c in vlog_ex.extract_modules(''.join(list(sys.stdin)))]}
+    else:
+      all_components = {'<stdin>': [(c, vhdl_ex) for c in vhdl_ex.extract_components(''.join(list(sys.stdin)))]}
     # Output is a named file
 
   elif os.path.isfile(args.input):
-    all_components = {args.input: ve.extract_file_components(args.input)}
+    if vhdl.is_vhdl(args.input):
+      #all_components = {args.input: vhdl_ex.extract_file_components(args.input)}
+      all_components = {args.input: [(c, vhdl_ex) for c in vhdl_ex.extract_file_components(args.input)]}
+    else:
+      #all_components = {args.input: vlog_ex.extract_file_modules(args.input)}
+      all_components = {args.input: [(c, vlog_ex) for c in vlog_ex.extract_file_modules(args.input)]}
     # Output is a directory
 
   elif os.path.isdir(args.input):
-    flist = file_search(args.input)
-    all_components = {f: ve.extract_file_components(f) for f in flist}
+    flist = set(file_search(args.input, extensions=('.vhdl', '.vhd', '.vlog', '.v')))
+
+    # Separate file by extension
+    vhdl_files = set(f for f in flist if vhdl.is_vhdl(f))
+    vlog_files = flist - vhdl_files
+
+    #print('## VHDL:', vhdl_files)
+    #print('## Verilog:', vlog_files)
+
+    #all_components = {f: vhdl_ex.extract_file_components(f) for f in vhdl_files}
+    all_components = {f: [(c, vhdl_ex) for c in vhdl_ex.extract_file_components(f)] for f in vhdl_files}
+
+    #all_components.update({f: vlog_ex.extract_file_modules(f) for f in vlog_files})
+    vlog_components = {f: [(c, vlog_ex) for c in vlog_ex.extract_file_modules(f)] for f in vlog_files}
+    all_components.update(vlog_components)
     # Output is a directory
 
   else:
@@ -493,7 +538,7 @@ def main():
 
   # Render every component from every file into an image
   for source, components in all_components.iteritems():
-    for comp in components:
+    for comp, extractor in components:
       reformat_array_params(comp)
       if source == '<stdin>':
         fname = args.output
@@ -514,7 +559,8 @@ def main():
 
       #print(entity_data)
 
-      sym = make_symbol(comp, ve, args.title)
+      #print('## MAKE SYM:', comp)
+      sym = make_symbol(comp, extractor, args.title)
       sym.draw(0,0, nc)
 
       #nc.dump_shapes()
