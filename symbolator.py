@@ -17,7 +17,7 @@ import hdlparse.vhdl_parser as vhdl
 import hdlparse.verilog_parser as vlog
 
 
-__version__ = '0.6'
+__version__ = '0.6.2'
 
 
 def xml_escape(txt):
@@ -163,6 +163,16 @@ class PinSection(object):
     except ValueError:
       rmax = 0
 
+    if self.name is not None:
+      x0, y0, x1, y1, baseline = c.surf.text_bbox(self.name, font_params)
+      w = abs(x1 - x0)
+      name_width = self.padding + w
+
+      if lmax > 0:
+        lmax = max(lmax, name_width)
+      else:
+        rmax = max(rmax, name_width)
+
     return lmax + rmax + self.padding
 
   def draw(self, x, y, width, c):
@@ -173,7 +183,7 @@ class PinSection(object):
     toff = 0
 
     title_font = ('Times', 12, 'italic')
-    if self.show_name and self.name is not None: # Compute title offset
+    if self.show_name and self.name is not None and len(self.name) > 0: # Compute title offset
       x0,y0, x1,y1, baseline = c.surf.text_bbox(self.name, title_font)
       toff = y1 - y0
 
@@ -282,6 +292,7 @@ def make_section(sname, sect_pins, fill, extractor):
     pdir = p.mode
     data_type = p.data_type
     bus = extractor.is_array(p.data_type)
+    #print('## BUS:', p.name, p.data_type, bus)
 
     pdir = pdir.lower()
 
@@ -305,7 +316,7 @@ def make_section(sname, sect_pins, fill, extractor):
     # Check for pin name patterns
     pin_patterns = {
       'clock': re.compile(r'(^cl(oc)?k)|(cl(oc)?k$)', re.IGNORECASE),
-      'bubble': re.compile(r'_n$', re.IGNORECASE),
+      'bubble': re.compile(r'_[nb]$', re.IGNORECASE),
       'bus': re.compile(r'(\[.*\]$)', re.IGNORECASE)
     }
 
@@ -380,7 +391,7 @@ def parse_args():
   parser.add_argument('--scale', dest='scale', action='store', default='1', help='Scale image')
   parser.add_argument('--title', dest='title', action='store_true', default=False, help='Omit component nameabove symbol')
   parser.add_argument('--verilog', dest='verilog', action='store_true', default=False, help='Parse stdin as Verilog')
-  parser.add_argument('-v', '--version', dest='version', action='store_true', default=False, help='Syntrax version')
+  parser.add_argument('-v', '--version', dest='version', action='store_true', default=False, help='Symbolator version')
 
   args, unparsed = parser.parse_known_args()
 
