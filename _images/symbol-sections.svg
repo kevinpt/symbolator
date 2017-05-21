@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created by Symbolator http://kevinpt.github.io/symbolator -->
+<svg xmlns="http://www.w3.org/2000/svg"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+xml:space="preserve"
+width="356" height="253" viewBox="-108 -20 356.0 253.0" version="1.1">
+<style type="text/css">
+<![CDATA[
+.fnt2 {fill:#000000;
+    font-family:Helvetica; font-size:12pt; font-weight:normal; font-style:normal;}
+.fnt1 {fill:#000000;
+    font-family:Times; font-size:12pt; font-weight:normal; font-style:italic;}
+.label {fill:#000;
+  text-anchor:middle;
+  font-size:16pt; font-weight:bold; font-family:Sans;}
+.link {fill: #0D47A1;}
+.link:hover {fill: #0D47A1; text-decoration:underline;}
+.link:visited {fill: #4A148C;}
+]]>
+</style>
+<defs>
+<marker viewBox="0 0 8.0 8.0" refX="4.8" refY="4.0" markerUnits="userSpaceOnUse" orient="auto" markerWidth="8.0" id="arrow_back" markerHeight="8.0">
+<g transform="translate(8.0,4.0)"><path d="M 0 -4 C -2 -1, -2 1, 0 4 L -8 0 z" stroke="none" fill="#000000"/>
+</g>
+</marker>
+<marker viewBox="0 0 8.0 8.0" refX="3.2" refY="4.0" markerUnits="userSpaceOnUse" orient="auto" markerWidth="8.0" id="arrow_fwd" markerHeight="8.0">
+<g transform="translate(-0.0,4.0)"><path d="M 0 -4 C 2 -1, 2 1, 0 4 L 8 0 z" stroke="none" fill="#000000"/>
+</g>
+</marker>
+<marker viewBox="0 0 8.0 15.0" refX="0.5" refY="7.5" markerUnits="userSpaceOnUse" orient="auto" markerWidth="8.0" id="clock" markerHeight="15.0">
+<g transform="translate(0.5,7.5)"><path d="M 0 -7 L 0 7 L 7 0 z" stroke="#000000" stroke-width="1" fill="#FFFFFF"/>
+</g>
+</marker>
+</defs>
+<rect x="-108" y="-20" width="100%" height="100%" fill="white"/><g transform="translate(0,0)">
+<rect x="0" y="-15" width="140" height="53" stroke="#000000" stroke-width="1" fill="#FECFCF"/>
+<text class="fnt1" x="70.0" y="0" text-anchor="middle" dy="6.5">Clocking</text>
+<g transform="translate(0,23)">
+<line x1="-20" y1="0" x2="0" y2="0" stroke="#000000" stroke-width="1" marker-end="url(#clock)" fill="none"/>
+<text class="fnt2" x="10" y="0" text-anchor="normal" dy="7.0">Clock</text>
+<text class="fnt2" x="-30" y="0" style="fill:#969696" text-anchor="end" dy="7.0">std_ulogic</text>
+</g>
+</g>
+<g transform="translate(0,53)">
+<rect x="0" y="-15" width="140" height="53" stroke="#000000" stroke-width="1" fill="#FFF6B1"/>
+<text class="fnt1" x="70.0" y="0" text-anchor="middle" dy="6.5">Control signals</text>
+<g transform="translate(0,23)">
+<line x1="-20" y1="0" x2="0" y2="0" stroke="#000000" stroke-width="1" fill="none"/>
+<text class="fnt2" x="10" y="0" text-anchor="normal" dy="7.0">Enable</text>
+<text class="fnt2" x="-30" y="0" style="fill:#969696" text-anchor="end" dy="7.0">std_ulogic</text>
+</g>
+</g>
+<g transform="translate(0,106)">
+<rect x="0" y="-15" width="140" height="53" stroke="#000000" stroke-width="1" fill="#CCFED2"/>
+<text class="fnt1" x="70.0" y="0" text-anchor="middle" dy="6.5">Data port</text>
+<g transform="translate(0,23)">
+<line x1="-20" y1="0" x2="0" y2="0" stroke="#000000" stroke-width="1" fill="none"/>
+<text class="fnt2" x="10" y="0" text-anchor="normal" dy="7.0">Data1</text>
+<text class="fnt2" x="-30" y="0" style="fill:#969696" text-anchor="end" dy="7.0">std_ulogic</text>
+</g>
+</g>
+<g transform="translate(0,159)">
+<rect x="0" y="-15" width="140" height="53" stroke="#000000" stroke-width="1" fill="#B9FDE9"/>
+<text class="fnt1" x="70.0" y="0" text-anchor="middle" dy="6.5">Additional port1</text>
+<g transform="translate(140,23)">
+<line x1="20" y1="0" x2="0" y2="0" stroke="#000000" stroke-width="1" fill="none"/>
+<text class="fnt2" x="-10" y="0" text-anchor="end" dy="7.0">Data2</text>
+<text class="fnt2" x="30" y="0" style="fill:#969696" text-anchor="normal" dy="7.0">std_ulogic</text>
+</g>
+</g>
+<g transform="translate(0,212)">
+<rect x="0" y="-15" width="140" height="30" stroke="#000000" stroke-width="1" fill="#FBDCC4"/>
+<text class="fnt1" x="70.0" y="0" text-anchor="middle" dy="6.5"></text>
+<g transform="translate(140,0)">
+<line x1="16.16" y1="4.70264370873e-16" x2="3.84" y2="-4.70264370873e-16" marker-start="url(#arrow_back)" stroke="#000000" stroke-width="1" marker-end="url(#arrow_fwd)" fill="none"/>
+<text class="fnt2" x="-10" y="0" text-anchor="end" dy="7.0">Data3</text>
+<text class="fnt2" x="30" y="0" style="fill:#969696" text-anchor="normal" dy="7.0">std_ulogic</text>
+</g>
+</g>
+<rect x="1.0" y="-14.0" width="138.0" height="240.0" stroke="#000000" stroke-width="3" fill="none"/>
+</svg>

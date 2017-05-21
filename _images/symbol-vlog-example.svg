@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created by Symbolator http://kevinpt.github.io/symbolator -->
+<svg xmlns="http://www.w3.org/2000/svg"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+xml:space="preserve"
+width="203" height="41" viewBox="-65 -20 203.0 41.0" version="1.1">
+<style type="text/css">
+<![CDATA[
+.fnt1 {fill:#000000;
+    font-family:Helvetica; font-size:12pt; font-weight:normal; font-style:normal;}
+.label {fill:#000;
+  text-anchor:middle;
+  font-size:16pt; font-weight:bold; font-family:Sans;}
+.link {fill: #0D47A1;}
+.link:hover {fill: #0D47A1; text-decoration:underline;}
+.link:visited {fill: #4A148C;}
+]]>
+</style>
+<defs>
+
+</defs>
+<rect x="-65" y="-20" width="100%" height="100%" fill="white"/><g transform="translate(0,0)">
+<rect x="0" y="-15" width="80" height="30" stroke="#000000" stroke-width="1" fill="#C5DBFC"/>
+<g transform="translate(0,0)">
+<line x1="-20" y1="0" x2="0" y2="0" stroke="#000000" stroke-width="1" fill="none"/>
+<text class="fnt1" x="10" y="0" text-anchor="normal" dy="7.0">foo</text>
+<text class="fnt1" x="-30" y="0" style="fill:#969696" text-anchor="end" dy="7.0">wire</text>
+</g>
+<g transform="translate(80,0)">
+<line x1="20" y1="0" x2="0" y2="0" stroke="#000000" stroke-width="1" fill="none"/>
+<text class="fnt1" x="-10" y="0" text-anchor="end" dy="7.0">bar</text>
+<text class="fnt1" x="30" y="0" style="fill:#969696" text-anchor="normal" dy="7.0">reg</text>
+</g>
+</g>
+<rect x="1.0" y="-14.0" width="78.0" height="28.0" stroke="#000000" stroke-width="3" fill="none"/>
+</svg>

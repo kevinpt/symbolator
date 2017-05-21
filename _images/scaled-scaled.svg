@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created by Symbolator http://kevinpt.github.io/symbolator -->
+<svg xmlns="http://www.w3.org/2000/svg"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+xml:space="preserve"
+width="149" height="40" viewBox="-103 -20 298.0 81.0" version="1.1">
+<style type="text/css">
+<![CDATA[
+.fnt1 {fill:#000000;
+    font-family:Helvetica; font-size:12pt; font-weight:normal; font-style:normal;}
+.label {fill:#000;
+  text-anchor:middle;
+  font-size:16pt; font-weight:bold; font-family:Sans;}
+.link {fill: #0D47A1;}
+.link:hover {fill: #0D47A1; text-decoration:underline;}
+.link:visited {fill: #4A148C;}
+]]>
+</style>
+<defs>
+<marker viewBox="0 0 8.0 15.0" refX="0.5" refY="7.5" markerUnits="userSpaceOnUse" orient="auto" markerWidth="8.0" id="clock" markerHeight="15.0">
+<g transform="translate(0.5,7.5)"><path d="M 0 -7 L 0 7 L 7 0 z" stroke="#000000" stroke-width="1" fill="#FFFFFF"/>
+</g>
+</marker>
+</defs>
+<rect x="-103" y="-20" width="100%" height="100%" fill="white"/><g transform="translate(0,0)">
+<rect x="0" y="-15" width="100" height="70" stroke="#000000" stroke-width="1" fill="#C5DBFC"/>
+<g transform="translate(0,0)">
+<line x1="-20" y1="0" x2="0" y2="0" stroke="#000000" stroke-width="1" marker-end="url(#clock)" fill="none"/>
+<text class="fnt1" x="10" y="0" text-anchor="normal" dy="7.0">Clock</text>
+<text class="fnt1" x="-30" y="0" style="fill:#969696" text-anchor="end" dy="7.0">std_ulogic</text>
+</g>
+<g transform="translate(0,20)">
+<line x1="-20" y1="0" x2="0" y2="0" stroke="#000000" stroke-width="1" fill="none"/>
+<text class="fnt1" x="10" y="0" text-anchor="normal" dy="7.0">Reset</text>
+<text class="fnt1" x="-30" y="0" style="fill:#969696" text-anchor="end" dy="7.0">std_ulogic</text>
+</g>
+<g transform="translate(0,40)">
+<line x1="-20" y1="0" x2="0" y2="0" stroke="#000000" stroke-width="3" fill="none"/>
+<text class="fnt1" x="10" y="0" text-anchor="normal" dy="7.0">Din</text>
+<text class="fnt1" x="-30" y="0" style="fill:#969696" text-anchor="end" dy="7.0">unsigned</text>
+</g>
+<g transform="translate(100,0)">
+<line x1="20" y1="0" x2="0" y2="0" stroke="#000000" stroke-width="3" fill="none"/>
+<text class="fnt1" x="-10" y="0" text-anchor="end" dy="7.0">Dout</text>
+<text class="fnt1" x="30" y="0" style="fill:#969696" text-anchor="normal" dy="7.0">unsigned</text>
+</g>
+</g>
+<rect x="1.0" y="-14.0" width="98.0" height="68.0" stroke="#000000" stroke-width="3" fill="none"/>
+</svg>
