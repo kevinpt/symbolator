@@ -504,10 +504,8 @@ def main():
 
   elif os.path.isfile(args.input):
     if vhdl.is_vhdl(args.input):
-      #all_components = {args.input: vhdl_ex.extract_file_components(args.input)}
       all_components = {args.input: [(c, vhdl_ex) for c in vhdl_ex.extract_file_components(args.input)]}
     else:
-      #all_components = {args.input: vlog_ex.extract_file_modules(args.input)}
       all_components = {args.input: [(c, vlog_ex) for c in vlog_ex.extract_file_modules(args.input)]}
     # Output is a directory
 
@@ -521,10 +519,8 @@ def main():
     #print('## VHDL:', vhdl_files)
     #print('## Verilog:', vlog_files)
 
-    #all_components = {f: vhdl_ex.extract_file_components(f) for f in vhdl_files}
     all_components = {f: [(c, vhdl_ex) for c in vhdl_ex.extract_file_components(f)] for f in vhdl_files}
 
-    #all_components.update({f: vlog_ex.extract_file_modules(f) for f in vlog_files})
     vlog_components = {f: [(c, vlog_ex) for c in vlog_ex.extract_file_modules(f)] for f in vlog_files}
     all_components.update(vlog_components)
     # Output is a directory

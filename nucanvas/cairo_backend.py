@@ -123,12 +123,16 @@ class CairoSurface(BaseSurface):
       layout.set_spacing(spacing * pango.SCALE)
       layout.set_text(plain_text, len(plain_text))
       layout.set_attributes(attrs)
+
+      li = layout.get_iter() # Get first line of text
+      baseline = li.get_baseline() / pango.SCALE
+
       re = layout.get_pixel_extents()[1] # Get logical extents
       extents = (re.x, re.y, re.x + re.width, re.y + re.height)
-      # FIXME: new extents, baseline on pygopject
+
     else: # pyGtk
       attrs, plain_text, _ = pango.parse_markup(text)
-    
+
       pctx = pangocairo.CairoContext(ctx)
       pctx.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
       layout = pctx.create_layout()
@@ -136,8 +140,8 @@ class CairoSurface(BaseSurface):
       layout.set_spacing(spacing * pango.SCALE)
       layout.set_text(plain_text)
       layout.set_attributes(attrs)
-      
-      li = layout.get_iter()
+
+      li = layout.get_iter() # Get first line of text
       baseline = li.get_baseline() / pango.SCALE
 
       #print('@@ EXTENTS:', layout.get_pixel_extents()[1], spacing)
@@ -538,7 +542,7 @@ class CairoSurface(BaseSurface):
         elif len(n) == 5: # Arc (javascript arcto() args)
           #print('# arc:', pp)
           #pp = self.draw_rounded_corner(pp, n[0:2], n[2:4], n[4], c)
-          
+
           center, start_p, end_p, rad = rounded_corner(pp, n[0:2], n[2:4], n[4])
           if rad < 0: # No arc
             c.line_to(*end_p)
@@ -548,12 +552,12 @@ class CairoSurface(BaseSurface):
             oend_p = (end_p[0] - center[0], end_p[1] - center[1])
             start_a = math.atan2(ostart_p[1], ostart_p[0]) % math.radians(360)
             end_a = math.atan2(oend_p[1], oend_p[0]) % math.radians(360)
-            
+
             # Determine direction of arc
             # Rotate whole system so that start_a is on x-axis
             # Then if delta < 180 cw  if delta > 180 ccw
             delta = (end_a - start_a) % math.radians(360)
-            
+
             #print('# start_a, end_a', math.degrees(start_a), math.degrees(end_a),
             #            math.degrees(delta))
 
@@ -562,9 +566,9 @@ class CairoSurface(BaseSurface):
             else: # CCW
               c.arc_negative(center[0],center[1], rad, start_a, end_a)
           pp = end_p
-          
+
           #print('# pp:', pp)
-          
+
 
       if fill is not None:
         c.set_source_rgba(*rgb_to_cairo(fill))
@@ -576,132 +580,4 @@ class CairoSurface(BaseSurface):
       if stroke:
         c.set_source_rgba(*rgb_to_cairo(line_color))
         c.stroke()
-    
-#def render_railroad(spec, title, url_map, out_file, backend, styles, scale, transparent):
-#  print('Rendering to {} using {} backend'.format(out_file, backend))
-#  rc = RailCanvas(cairo_text_bbox)
-
-#  layout = RailroadLayout(rc, styles, url_map)
-#  layout.draw_diagram(spec)
-
-#  if title is not None: # Add title
-#    pos = styles.title_pos
-
-#    x0,y0,x1,y1 = rc.bbox('all')
-#    
-#    tid = rc.create_text(0, 0, anchor='l', text=title, font=styles.title_font,
-#      font_name='title_font')
-
-#    tx0, ty0, tx1, ty1 = rc.bbox(tid)
-#    h = ty1 - ty0
-#    w = tx1 - tx0
-#    
-#    mx = x0 if 'l' in pos else (x1 + x0 - w) / 2  if 'c' in pos else x0 + x1 - w
-#    my = (y0 - h - styles.padding) if 't' in pos else (y1 - y0 - styles.padding)
-
-#    rc.move(tid, mx, my)
-
-#  x0,y0,x1,y1 = rc.bbox('all')
-
-#  W = int((x1 - x0 + 2*styles.padding) * scale)
-#  H = int((y1 - y0 + 2*styles.padding) * scale)
-
-#  if not styles.arrows: # Remove arrow heads
-#    for s in rc.shapes:
-#      if 'arrow' in s.options:
-#        del s.options['arrow']
-
-#  if styles.shadow: # Draw shadows first
-#    bubs = [copy.deepcopy(s) for s in rc.shapes
-#      if isinstance(s, BoxBubbleShape) or isinstance(s, BubbleShape) or isinstance(s, HexBubbleShape)]
-
-#    # Remove all text and offset shadow
-#    for s in bubs:
-#      del s.options['text']
-#      s.options['fill'] = styles.shadow_fill
-#      w = s.options['width']
-#      s.options['width'] = 0
-#      s.move(w+1,w+1)
-
-#    # Put rest of shapes after the shadows
-#    bubs.extend(rc.shapes)
-#    rc.shapes = bubs
-
-
-#  if backend == 'svg':
-
-#    # Reposition all shapes in the viewport
-#    for s in rc.shapes:
-#      s.move(-x0 + styles.padding, -y0 + styles.padding)
-
-#    # Generate CSS for fonts
-#    text_color = rgb_to_hex(styles.text_color)
-#    css = []
-
-#    fonts = {}
-#    # Collect fonts from common styles
-#    for f in [k for k in dir(styles) if k.endswith('_font')]:
-#      fonts[f] = (getattr(styles, f), text_color)
-#    # Collect node style fonts
-#    for ns in styles.node_styles:
-#      fonts[ns.name + '_font'] = (ns.font, rgb_to_hex(ns.text_color))
-
-#    for f, fs in fonts.iteritems():
-#      family, size, weight = fs[0]
-#      text_color = fs[1]
-
-#      if weight == 'italic':
-#        style = 'italic'
-#        weight = 'normal'
-#      else:
-#        style = 'normal'
-
-#      css.append('''.{} {{fill:{}; text-anchor:middle;
-#    font-family:{}; font-size:{}pt; font-weight:{}; font-style:{};}}'''.format(f,
-#      text_color, family, size, weight, style))
-
-
-#    font_styles = '\n'.join(css)
-#    line_color = rgb_to_hex(styles.line_color)
-
-#    with io.open(out_file, 'w', encoding='utf-8') as fh:
-#      fh.write(svg_header.format(W,H, font_styles, line_color))
-#      if not transparent:
-#        fh.write(u'<rect width="100%" height="100%" fill="white"/>')
-#      for s in rc.shapes:
-#        svg_draw_shape(s, fh, styles)
-#      fh.write(u'</svg>')
-
-#  else: # Cairo backend
-#    ext = os.path.splitext(out_file)[1].lower()
-
-#    if ext == '.svg':
-#      surf = cairo.SVGSurface(out_file, W, H)
-#    elif ext == '.pdf':
-#      surf = cairo.PDFSurface(out_file, W, H)
-#    elif ext in ('.ps', '.eps'):
-#      surf = cairo.PSSurface(out_file, W, H)
-#      if ext == '.eps':
-#        surf.set_eps(True)
-#    else: # Bitmap
-#      surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
-
-#    ctx = cairo.Context(surf)
-
-#    if not transparent:
-#      # Fill background
-#      ctx.rectangle(0,0, W,H)
-#      ctx.set_source_rgba(1.0,1.0,1.0)
-#      ctx.fill()
-
-#    ctx.scale(scale, scale)
-#    ctx.translate(-x0 + styles.padding, -y0 + styles.padding)
-
-#    for s in rc.shapes:
-#      cairo_draw_shape(s, ctx, styles)
-
-#    if ext in ('.svg', '.pdf', '.ps', '.eps'):
-#      surf.show_page()
-#    else:
-#      surf.write_to_png(out_file)
 

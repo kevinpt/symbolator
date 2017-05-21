@@ -6,18 +6,8 @@ import math
 import StringIO
 import xml.etree.ElementTree as ET
 
-#import cairo # For text bbox
 from shapes import *
 from cairo_backend import CairoSurface
-
-#try:
-#  import pango
-#  import pangocairo
-#  use_pygobject = False
-#except ImportError:
-#  from gi.repository import Pango as pango
-#  from gi.repository import PangoCairo as pangocairo
-#  use_pygobject = True
 
 #################################
 ## SVG objects
@@ -266,7 +256,7 @@ width="{}" height="{}" viewBox="{}" version="1.1">
         if 'foreground' in child.attrib:
           child.attrib['fill'] = child.attrib['foreground']
           del child.attrib['foreground']
-    return ET.tostring(root)[3:-4]
+    return ET.tostring(root)[3:-4].decode('utf-8')
 
   @staticmethod
   def draw_text(x, y, text, css_class, text_color, baseline, anchor, anchor_off, spacing, fh):

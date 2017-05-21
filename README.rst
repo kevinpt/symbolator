@@ -40,7 +40,7 @@ Symbolator is a component diagramming tool for VHDL and Verilog. It will parse H
 
 Produces the following:
  
-.. image:: http://kevinpt.github.io/symbolator/_static/demo_device-demo_device.svg
+.. image:: http://kevinpt.github.io/symbolator/_images/demo_device-demo_device.svg
 
 
 Symbolator can render to PNG bitmap images or SVG, PDF, PS, and EPS vector images. SVG is the default.
