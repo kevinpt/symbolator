@@ -282,7 +282,7 @@ class HdlSymbol(object):
 
 
 
-def make_section(sname, sect_pins, fill, extractor):
+def make_section(sname, sect_pins, fill, extractor, no_type=False):
   sect = PinSection(sname, fill=fill)
   side = 'l'
 
@@ -290,7 +290,7 @@ def make_section(sname, sect_pins, fill, extractor):
   for p in sect_pins:
     pname = p.name
     pdir = p.mode
-    data_type = p.data_type
+    data_type = p.data_type if no_type == False else None
     bus = extractor.is_array(p.data_type)
     #print('## BUS:', p.name, p.data_type, bus)
 
@@ -333,7 +333,7 @@ def make_section(sname, sect_pins, fill, extractor):
 
   return sect
 
-def make_symbol(comp, extractor, title=False):
+def make_symbol(comp, extractor, title=False, no_type=False):
 
   vsym = HdlSymbol() if title == False else HdlSymbol(comp.name)
 
@@ -342,7 +342,7 @@ def make_symbol(comp, extractor, title=False):
   #print('## PORTS:', comp.ports)
 
   if len(comp.generics) > 0: #'generic' in entity_data:
-    s = make_section(None, comp.generics, (200,200,200), extractor)
+    s = make_section(None, comp.generics, (200,200,200), extractor, no_type)
     s.line_color = (100,100,100)
     gsym = Symbol([s], line_color=(100,100,100))
     vsym.add_symbol(gsym)
@@ -371,7 +371,7 @@ def make_symbol(comp, extractor, title=False):
 
     for sdata in sections: #entity_data['port']:
       #print('## SDAT:', sdata[0])
-      s = make_section(sdata[0], sdata[1], sinebow.lighten(next(color_seq), 0.75), extractor)
+      s = make_section(sdata[0], sdata[1], sinebow.lighten(next(color_seq), 0.75), extractor, no_type)
       psym.add_section(s)
 
     vsym.add_symbol(psym)
@@ -383,14 +383,14 @@ def parse_args():
   parser.add_argument('-i', '--input', dest='input', action='store', help='HDL source ("-" for STDIN)')
   parser.add_argument('-o', '--output', dest='output', action='store', help='Output file')
   parser.add_argument('-f', '--format', dest='format', action='store', default='svg', help='Output format')
-  parser.add_argument('-L', '--library', dest='lib', action='store',
-    default='.', help='Library path')
+  parser.add_argument('-L', '--library', dest='lib_dirs', action='append',
+    default=['.'], help='Library path')
   parser.add_argument('-s', '--save-lib', dest='save_lib', action='store', help='Save type def cache file')
   parser.add_argument('-t', '--transparent', dest='transparent', action='store_true',
     default=False, help='Transparent background')
   parser.add_argument('--scale', dest='scale', action='store', default='1', help='Scale image')
-  parser.add_argument('--title', dest='title', action='store_true', default=False, help='Omit component nameabove symbol')
-  parser.add_argument('--verilog', dest='verilog', action='store_true', default=False, help='Parse stdin as Verilog')
+  parser.add_argument('--title', dest='title', action='store_true', default=False, help='Add component name above symbol')
+  parser.add_argument('--no-type', dest='no_type', action='store_true', default=False, help='Omit pin type information')
   parser.add_argument('-v', '--version', dest='version', action='store_true', default=False, help='Symbolator version')
 
   args, unparsed = parser.parse_known_args()
@@ -412,7 +412,14 @@ def parse_args():
 
   args.scale = float(args.scale)
 
+  # Remove duplicates
+  args.lib_dirs = list(set(args.lib_dirs))
+
   return args
+
+
+def is_verilog_code(code):
+  return re.search('endmodule', code) is not None
 
 #def is_vhdl(fname):
 #  return os.path.splitext(fname)[1].lower() in ('.vhdl', '.vhd')
@@ -461,14 +468,16 @@ def main():
   vhdl_ex = vhdl.VhdlExtractor()
   vlog_ex = vlog.VerilogExtractor()
 
-  if os.path.isfile(args.lib) and vhdl.is_vhdl(args.lib):
+  if os.path.isfile(args.lib_dirs[0]) and vhdl.is_vhdl(args.lib_dirs[0]):
     # This is a file containing previously parsed array type names
-    vhdl_ex.load_array_types(args.lib)
+    vhdl_ex.load_array_types(args.lib_dirs[0])
 
-  else: # args.lib is a path
+  else: # args.lib_dirs is a path
     # Find all library files
-    print('Scanning library:', args.lib)
-    flist = file_search(args.lib, extensions=('.vhdl', '.vhd', '.vlog', '.v')) # Get VHDL and Verilog files
+    flist = []
+    for lib in args.lib_dirs:
+      print('Scanning library:', lib)
+      flist.extend(file_search(lib, extensions=('.vhdl', '.vhd', '.vlog', '.v'))) # Get VHDL and Verilog files
     if args.input and os.path.isfile(args.input):
       flist.append(args.input)
 
@@ -486,10 +495,11 @@ def main():
     sys.exit(0)
 
   if args.input == '-': # Read from stdin
-    if args.verilog:
-      all_components = {'<stdin>': [(c, vlog_ex) for c in vlog_ex.extract_modules(''.join(list(sys.stdin)))]}
+    code = ''.join(list(sys.stdin))
+    if is_verilog_code(code):
+      all_components = {'<stdin>': [(c, vlog_ex) for c in vlog_ex.extract_modules(code)]}
     else:
-      all_components = {'<stdin>': [(c, vhdl_ex) for c in vhdl_ex.extract_components(''.join(list(sys.stdin)))]}
+      all_components = {'<stdin>': [(c, vhdl_ex) for c in vhdl_ex.extract_components(code)]}
     # Output is a named file
 
   elif os.path.isfile(args.input):
@@ -561,9 +571,9 @@ def main():
       print('Creating symbol for {} "{}"\n\t-> {}'.format(source, comp.name, fname))
       #print('## Entity:', entity_data)
       if args.format == 'svg':
-        surf = SvgSurface(fname, style, padding=5, scale=1)
+        surf = SvgSurface(fname, style, padding=5, scale=args.scale)
       else:
-        surf = CairoSurface(fname, style, padding=5, scale=1)
+        surf = CairoSurface(fname, style, padding=5, scale=args.scale)
 
       nc.set_surface(surf)
       nc.clear_shapes()
@@ -571,7 +581,7 @@ def main():
       #print(entity_data)
 
       #print('## MAKE SYM:', comp)
-      sym = make_symbol(comp, extractor, args.title)
+      sym = make_symbol(comp, extractor, args.title, args.no_type)
       sym.draw(0,0, nc)
 
       #nc.dump_shapes()
