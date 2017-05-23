@@ -61,7 +61,7 @@ The Pango library is used compute the dimensions of a text layout. There is no s
 Licensing
 ---------
 
-Symbolator is licensed for free commercial and non-commercial use under the terms of the MIT license.
+Symbolator is licensed for free commercial and non-commercial use under the terms of the MIT license. The Symbolator Sphinx extension is derived from the Graphviz extension and is BSD licensed.
 
 
 Download

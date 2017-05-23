@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# Copyright © 2017 Kevin Thibedeau
+# Distributed under the terms of the MIT license
 from __future__ import print_function
 
 import io
@@ -13,27 +16,9 @@ from cairo_backend import CairoSurface
 ## SVG objects
 #################################
 
-#def rgb_to_cairo(rgb):
-#  if len(rgb) == 4:
-#    r,g,b,a = rgb
-#    return (r / 255.0, g / 255.0, b / 255.0, a / 255.0)
-
-#  else:
-#    r,g,b = rgb
-#    return (r / 255.0, g / 255.0, b / 255.0, 1.0)
-
 def cairo_font(tk_font):
   family, size, weight = tk_font
   return pango.FontDescription('{} {} {}'.format(family, weight, size))
-
-
-#def cairo_line_cap(line_cap):
-#  if line_cap == 'round':
-#    return cairo.LINE_CAP_ROUND
-#  elif line_cap == 'square':
-#    return cairo.LINE_CAP_SQUARE
-#  else:
-#    return cairo.LINE_CAP_BUTT
 
 
 def rgb_to_hex(rgb):
@@ -91,10 +76,6 @@ width="{}" height="{}" viewBox="{}" version="1.1">
 </defs>
 '''
 
-#  <marker id="arrow_back" markerWidth="5" markerHeight="4" refX="2.5" refY="2" orient="auto" markerUnits="strokeWidth">
-#    <path d="M0,0 L0.5,2 L0,4 L4.5,2 z" fill="{}" />
-#  </marker>
-
   def render(self, canvas, transparent=False):
     x0,y0,x1,y1 = canvas.bbox('all')
     self.markers = canvas.markers
@@ -105,8 +86,6 @@ width="{}" height="{}" viewBox="{}" version="1.1">
     x0 = int(x0)
     y0 = int(y0)
     
-    #print('###', x0, y0)
-
     # Reposition all shapes in the viewport
 #    for s in canvas.shapes:
 #      s.move(-x0 + self.padding, -y0 + self.padding)
@@ -115,16 +94,7 @@ width="{}" height="{}" viewBox="{}" version="1.1">
     # Generate CSS for fonts
     text_color = rgb_to_hex(self.def_styles.text_color)
 
-#    fonts = {}
-#    # Collect fonts from common styles
-#    for f in [k for k in dir(self.def_styles) if k.endswith('_font')]:
-#      fonts[f] = (getattr(self.def_styles, f), text_color)
-#    # Collect node style fonts
-#    for ns in styles.node_styles:
-#      fonts[ns.name + '_font'] = (ns.font, rgb_to_hex(ns.text_color))
     # Get fonts from all shapes
-
-
     class FontVisitor(object):
       def __init__(self):
         self.font_ix = 1
@@ -162,9 +132,6 @@ width="{}" height="{}" viewBox="{}" version="1.1">
       font_css.append('''.{} {{fill:{};
     font-family:{}; font-size:{}pt; font-weight:{}; font-style:{};}}'''.format(fid,
       text_color, family, size, weight, style))
-#      font_css.append('''.{} {{
-#    font-family:{}; font-size:{}pt; font-weight:{}; font-style:{};}}'''.format(fid,
-#      family, size, weight, style))
 
     font_styles = '\n'.join(font_css)
 
@@ -289,7 +256,6 @@ width="{}" height="{}" viewBox="{}" version="1.1">
     if fh is None:
       fh = self.fh
     default_pen = rgb_to_hex(self.def_styles.line_color)
-    #c.set_source_rgba(*default_pen)
     
     attrs = {
       'stroke': 'none',
@@ -389,7 +355,6 @@ width="{}" height="{}" viewBox="{}" version="1.1">
           soff = (ref[0] - mx0) * adjust
           if units == 'stroke' and width > 0:
             soff *= width
-          #print("# SOFF", mx0, ref[0], soff)
           
           # Move start point
           x0 += soff * dx
@@ -402,13 +367,10 @@ width="{}" height="{}" viewBox="{}" version="1.1">
           eoff = (mx1 - ref[0]) * adjust
           if units == 'stroke' and width > 0:
             eoff *= width
-          #print("# EOFF", mx1, ref[0], eoff)
           
           # Move end point
           x1 -= eoff * dx
           y1 -= eoff * dy
-
-        #print('# ADJ:', x0,y0, x1, y1)
 
 
       # Add markers
@@ -483,10 +445,6 @@ width="{}" height="{}" viewBox="{}" version="1.1">
 
     elif isinstance(shape, PathShape):
     
-#      n0 = shape.nodes[0]
-#      if len(n0) == 2:
-#        c.move_to(*n0)
-
       pp = shape.nodes[0]
       nl = []
 

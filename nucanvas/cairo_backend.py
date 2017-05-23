@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# Copyright © 2017 Kevin Thibedeau
+# Distributed under the terms of the MIT license
 from __future__ import print_function
 
 import os
@@ -154,7 +157,6 @@ class CairoSurface(BaseSurface):
   @staticmethod
   def draw_text(x, y, text, font, text_color, spacing, c):
     c.save()
-    #print('## TEXT COLOR:', text_color)
     c.set_source_rgba(*rgb_to_cairo(text_color))
     font = cairo_font(font)
 
@@ -190,109 +192,6 @@ class CairoSurface(BaseSurface):
       
     c.restore()
 
-#  @staticmethod
-#  def rounded_corner(start, apex, end, rad):
-#    #print('## start, apex, end', start, apex, end)
-#    
-#    # Translate all points with apex at origin
-#    start = (start[0] - apex[0], start[1] - apex[1])
-#    end = (end[0] - apex[0], end[1] - apex[1])
-#    
-##    print('## start, end', start, end)
-#    
-#    # Get angles of each line segment
-#    enter_a = math.atan2(start[1], start[0]) % math.radians(360)
-#    leave_a = math.atan2(end[1], end[0]) % math.radians(360)
-#    
-##    print('## enter, leave', math.degrees(enter_a), math.degrees(leave_a))
-#    
-#    bisect = abs(enter_a - (enter_a + leave_a) / 2.0)
-#    
-##    print('## bisect', math.degrees(bisect))
-#    
-#    if bisect > math.radians(82): # Nearly colinear: Skip radius
-#      return (apex, apex, apex, -1)
-#    
-#    q = rad * math.sin(math.radians(90) - bisect) / math.sin(bisect)
-#    
-#    # Check that q is no more than half the shortest leg
-#    enter_leg = math.sqrt(start[0]**2 + start[1]**2)
-#    leave_leg = math.sqrt(end[0]**2 + end[1]**2)
-#    short_leg = min(enter_leg, leave_leg)
-#    if q > short_leg / 2:
-#      #print('## NEW RADIUS')
-#      q = short_leg / 2
-#      # Compute new radius
-#      rad = q * math.sin(bisect) / math.sin(math.radians(90) - bisect)
-#      
-#    h = math.sqrt(q**2 + rad**2)
-#    
-##    print('## rad, q, h', rad, q, h)
-#    
-#    # Center of circle
-#    bisect = (enter_a + leave_a) / 2.0
-# #   print('## bisect2', math.degrees(bisect))
-#    center = (h * math.cos(bisect) + apex[0], h * math.sin(bisect) + apex[1])
-#    
-#    # Find start and end point of arcs
-#    start_p = (q * math.cos(enter_a) + apex[0], q * math.sin(enter_a) + apex[1])
-#    end_p = (q * math.cos(leave_a) + apex[0], q * math.sin(leave_a) + apex[1])
-#    
-#    return (center, start_p, end_p, rad)
-    
-    
-#  def draw_rounded_corner(self, start, apex, end, rad, c):
-#    c.line_to(*apex)
-#    pth = c.copy_path()
-#    
-#    c.arc(start[0],start[1], 3, 0, 2 * math.pi)
-#    c.stroke()
-#    c.arc(apex[0],apex[1], 3, 0, 2 * math.pi)
-#    c.stroke()
-#    c.arc(end[0],end[1], 3, 0, 2 * math.pi)
-#    c.stroke()
-#    
-#    center, start_p, end_p, rad = rounded_corner(start, apex, end, rad)
-
-#    if rad < 0: # No arc
-#      pass
-#    else:
-#      
-#      c.arc(start_p[0],start_p[1], 3, 0, 2 * math.pi)
-#      c.stroke()
-#      c.arc(end_p[0],end_p[1], 3, 0, 2 * math.pi)
-#      c.stroke()
-
-#      
-#      c.move_to(*center)
-#      c.line_to(*apex)
-#      c.stroke()
-#      
-#      # Determine angles to arc end points
-#      ostart_p = (start_p[0] - center[0], start_p[1] - center[1])
-#      oend_p = (end_p[0] - center[0], end_p[1] - center[1])
-#      start_a = math.atan2(ostart_p[1], ostart_p[0]) % math.radians(360)
-#      end_a = math.atan2(oend_p[1], oend_p[0]) % math.radians(360)
-#      
-#      # Determine direction of arc
-#      # Rotate whole system so that start_a is on x-axis
-#      # Then if delta < 180 cw  if delta > 180 ccw
-#      delta = (end_a - start_a) % math.radians(360)
-#      
-#      print('# start_a, end_a', math.degrees(start_a), math.degrees(end_a),
-#                  math.degrees(delta))
-
-#      if delta < math.radians(180):
-#        c.arc(center[0],center[1], rad, start_a, end_a)
-#      else:
-#        c.arc_negative(center[0],center[1], rad, start_a, end_a)
-#      c.stroke()
-#    
-#    c.new_path()
-#    c.append_path(pth)
-#    
-#    return end_p
-    
   def draw_marker(self, name, mp, tp, width, c):
     if name in self.markers:
       m_shape, ref, orient, units = self.markers[name]
@@ -307,7 +206,6 @@ class CairoSurface(BaseSurface):
         c.rotate(angle)
 
       if units == 'stroke':
-        #print('  SCALE:', width)
         c.scale(width,width)
         
       c.translate(-ref[0], -ref[1])
@@ -386,7 +284,6 @@ class CairoSurface(BaseSurface):
           m_shape, ref, orient, units = self.markers[marker_start]
           mx0, my0, mx1, my1 = m_shape.bbox
           soff = (ref[0] - mx0) * adjust
-          #print("# SOFF", mx0, ref[0], soff)
           
           # Move start point
           x0 += soff * dx
@@ -397,7 +294,6 @@ class CairoSurface(BaseSurface):
           m_shape, ref, orient, units = self.markers[marker_end]
           mx0, my0, mx1, my1 = m_shape.bbox
           eoff = (mx1 - ref[0]) * adjust
-          #print("# EOFF", mx1, ref[0], eoff)
           
           # Move end point
           x1 -= eoff * dx
@@ -419,13 +315,6 @@ class CairoSurface(BaseSurface):
       x0, y0, x1, y1 = shape.points
       c.rectangle(x0,y0, x1-x0,y1-y0)
 
-#      width = shape.param('width', self.def_styles)
-#      fill = shape.param('fill', self.def_styles)
-#      line_color = shape.param('line_color', self.def_styles)
-#      
-#      stroke = True if width > 0 else False
-
-      #print('%% RECT:', stroke, shape.options)
       if fill is not None:
         c.set_source_rgba(*rgb_to_cairo(fill))
         if stroke:
@@ -452,12 +341,6 @@ class CairoSurface(BaseSurface):
       c.arc(0,0, 1, 0, 2 * math.pi)
       #c.arc(xc,yc, rad, 0, 2 * math.pi)
       
-#      width = shape.param('width', self.def_styles)
-#      fill = shape.param('fill', self.def_styles)
-#      line_color = shape.param('line_color', self.def_styles)
-#      
-#      stroke = True if width > 0 else False
-
       if fill is not None:
         c.set_source_rgba(*rgb_to_cairo(fill))
         if stroke:
@@ -477,7 +360,6 @@ class CairoSurface(BaseSurface):
       x0, y0, x1, y1 = shape.points
       xc = (x0 + x1) / 2.0
       yc = (y0 + y1) / 2.0
-      #rad = abs(x1 - x0) / 2.0
       w = abs(x1 - x0)
       h = abs(y1 - y0)
 
@@ -519,14 +401,8 @@ class CairoSurface(BaseSurface):
       c.stroke()
 
         
-      #print('%% ARC:', xc, yc, rad, start, extent)
-
     elif isinstance(shape, PathShape):
     
-#      n0 = shape.nodes[0]
-#      if len(n0) == 2:
-#        c.move_to(*n0)
-
       pp = shape.nodes[0]
 
       for n in shape.nodes:

@@ -9,16 +9,19 @@ except ImportError:
 # Use README.rst for the long description
 with open('README.rst') as fh:
     long_description = fh.read()
-    
-# Scan the script for the version string
-version_file = 'symbolator.py'
-version = None
-with open(version_file) as fh:
-    try:
-        version = [line.split('=')[1].strip().strip("'") for line in fh if \
-            line.startswith('__version__')][0]
-    except IndexError:
-        pass
+
+def get_package_version(verfile):
+  '''Scan the script for the version string'''
+  version = None
+  with open(verfile) as fh:
+      try:
+          version = [line.split('=')[1].strip().strip("'") for line in fh if \
+              line.startswith('__version__')][0]
+      except IndexError:
+          pass
+  return version
+
+version = get_package_version('symbolator.py')
 
 if version is None:
     raise RuntimeError('Unable to find version string in file: {0}'.format(version_file))
@@ -33,7 +36,7 @@ setup(name='symbolator',
     description='HDL symbol generator',
     long_description=long_description,
     platforms = ['Any'],
-    install_requires = ['hdlparse>=0.9'],
+    install_requires = ['hdlparse>=1.0'],
     packages = ['nucanvas', 'nucanvas/color', 'symbolator_sphinx'],
     py_modules = ['symbolator'],
     entry_points = {

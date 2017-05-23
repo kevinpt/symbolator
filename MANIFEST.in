@@ -1,0 +1,4 @@
+include README.rst
+include ChangeLog.txt
+include LICENSE
+include symbolator_sphinx/LICENSE.Sphinx

@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# Copyright © 2017 Kevin Thibedeau
+# Distributed under the terms of the MIT license
 import math
 from math import sin, pi
 import colorsys

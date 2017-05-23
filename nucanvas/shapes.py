@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# Copyright © 2017 Kevin Thibedeau
+# Distributed under the terms of the MIT license
 from __future__ import print_function
 
 import os
@@ -5,13 +8,10 @@ import math
 
 
 def rounded_corner(start, apex, end, rad):
-  #print('## start, apex, end', start, apex, end)
-  
+
   # Translate all points with apex at origin
   start = (start[0] - apex[0], start[1] - apex[1])
   end = (end[0] - apex[0], end[1] - apex[1])
-  
-  #print('## start, end', start, end)
   
   # Get angles of each line segment
   enter_a = math.atan2(start[1], start[0]) % math.radians(360)
@@ -35,14 +35,11 @@ def rounded_corner(start, apex, end, rad):
   leave_leg = math.sqrt(end[0]**2 + end[1]**2)
   short_leg = min(enter_leg, leave_leg)
   if q > short_leg / 2:
-    #print('## NEW RADIUS')
     q = short_leg / 2
     # Compute new radius
     rad = q * math.sin(bisect) / math.sin(math.radians(90) - bisect)
     
   h = math.sqrt(q**2 + rad**2)
-  
-#    print('## rad, q, h', rad, q, h)
   
   # Center of circle
 
@@ -130,7 +127,6 @@ class DrawStyle(object):
 
 class BaseShape(object):
   def __init__(self, options, **kwargs):
-    #self.options = {}
     self.options = {} if options is None else options
     self.options.update(kwargs)
     
@@ -201,7 +197,6 @@ class BaseShape(object):
 class GroupShape(BaseShape):
   def __init__(self, surf, x0, y0, options, **kwargs):
     BaseShape.__init__(self, options, **kwargs)
-    #self.options = options
     self._pos = (x0,y0)
     self._bbox = None
     self.shapes = []
@@ -307,7 +302,7 @@ class GroupShape(BaseShape):
         by1 = max(boxes[3])
         
       if 'scale' in self.options:
-        sx = sy = self.options['scale'] # FIXME
+        sx = sy = self.options['scale']
         bx0 *= sx
         by0 *= sy
         bx1 *= sx
@@ -334,14 +329,12 @@ class GroupShape(BaseShape):
 class LineShape(BaseShape):
   def __init__(self, x0, y0, x1, y1, options=None, **kwargs):
     BaseShape.__init__(self, options, **kwargs)
-    #self.options = options
     self._bbox = [x0, y0, x1, y1]
     self.update_tags()
 
 class RectShape(BaseShape):
   def __init__(self, x0, y0, x1, y1, options=None, **kwargs):
     BaseShape.__init__(self, options, **kwargs)
-    #self.options = options
     self._bbox = [x0, y0, x1, y1]
     self.update_tags()
 
@@ -349,14 +342,12 @@ class RectShape(BaseShape):
 class OvalShape(BaseShape):
   def __init__(self, x0, y0, x1, y1, options=None, **kwargs):
     BaseShape.__init__(self, options, **kwargs)
-    #self.options = options
     self._bbox = [x0, y0, x1, y1]
     self.update_tags()
 
 class ArcShape(BaseShape):
   def __init__(self, x0, y0, x1, y1, options=None, **kwargs):
     BaseShape.__init__(self, options, **kwargs)
-    #self.options = options
     self._bbox = [x0, y0, x1, y1]
     self.update_tags()
 
@@ -418,8 +409,6 @@ class PathShape(BaseShape):
   def __init__(self, nodes, options=None, **kwargs):
     BaseShape.__init__(self, options, **kwargs)
     self.nodes = nodes
-    #self.options = options
-    #self._bbox = [x0, y0, x1, y1]
     self.update_tags()
 
   @property
@@ -474,18 +463,13 @@ class TextShape(BaseShape):
     self._baseline = baseline
     self._bbox = [x0, y0, x0+w, y0+h]
     self._anchor_off = self.anchor_offset
-    #self.move(*self.anchor_offset)
     
-    #self._bbox = text_bbox(options['text'], options['font'])
     self.update_tags()
-    #print('## NEW TEXT:', x0, y0, self._bbox, anchor)
 
   @property
   def bbox(self):
     x0, y0, x1, y1 = self._bbox
     ax, ay = self._anchor_off
-    #ax = ay = 0
-    #ay = 0
     return (x0+ax, y0+ay, x1+ax, y1+ay)
 
   @property
@@ -521,14 +505,7 @@ class TextShape(BaseShape):
     hh = h / 2.0
 
     spacing = self.param('spacing')
-    #spacing = 0
 
-
-#    anchor = self.param('anchor').lower()
-#    # Decode anchor
-#    anchor = anchor.replace('center','c')
-#    anchor = anchor.replace('east','e')
-#    anchor = anchor.replace('west','w')
     anchorh, anchorv = self.anchor_decode
     ax = 0
     ay = 0
@@ -557,7 +534,6 @@ class TextShape(BaseShape):
 class DoubleRectShape(BaseShape):
   def __init__(self, x0, y0, x1, y1, options=None, **kwargs):
     BaseShape.__init__(self, options, **kwargs)
-    #self.options = options
     self._bbox = [x0, y0, x1, y1]
     self.update_tags()
 
@@ -569,7 +545,6 @@ def cairo_draw_DoubleRectShape(shape, surf):
 
   stroke = True if shape.options['width'] > 0 else False
 
-  #print('%% RECT:', stroke, shape.options)
   if 'fill' in shape.options:
     c.set_source_rgba(*rgb_to_cairo(shape.options['fill']))
     if stroke:
@@ -581,7 +556,7 @@ def cairo_draw_DoubleRectShape(shape, surf):
     # FIXME c.set_source_rgba(*default_pen)
     c.set_source_rgba(*rgb_to_cairo((100,200,100)))
     c.stroke()
-    
+
     c.rectangle(x0+4,y0+4, x1-x0-8,y1-y0-8)
     c.stroke()
 

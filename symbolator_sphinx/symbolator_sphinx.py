@@ -9,7 +9,7 @@
     Derived from sphinx.ext.graphviz.
 
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+    :license: BSD, see LICENSE.Sphinx for details.
 """
 
 import re
@@ -28,8 +28,8 @@ from docutils.statemachine import ViewList
 import sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _
-#from sphinx.util import logging
-#from sphinx.util.i18n import search_image_for_language
+#XXX from sphinx.util import logging
+#XXX from sphinx.util.i18n import search_image_for_language
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 
 if False:
@@ -37,7 +37,7 @@ if False:
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
-#logger = logging.getLogger(__name__)
+#XXX logger = logging.getLogger(__name__)
 
 
 class SymbolatorError(SphinxError):
@@ -45,6 +45,7 @@ class SymbolatorError(SphinxError):
 
 
 class symbolator(nodes.General, nodes.Inline, nodes.Element):
+    '''Base class for symbolator node'''
     pass
 
 
@@ -95,8 +96,8 @@ class Symbolator(Directive):
                     'Symbolator directive cannot have both content and '
                     'a filename argument', line=self.lineno)]
             env = self.state.document.settings.env
-            #argument = search_image_for_language(self.arguments[0], env)
-            #rel_filename, filename = env.relfn2path(argument)
+            #XXX argument = search_image_for_language(self.arguments[0], env)
+            #XXX rel_filename, filename = env.relfn2path(argument)
             rel_filename, filename = env.relfn2path(self.arguments[0])
             env.note_dependency(rel_filename)
             try:
@@ -143,9 +144,8 @@ def render_symbol(self, code, options, format, prefix='symbol'):
 
     name = options.get('name', sha1(hashkey).hexdigest())
     fname = '%s-%s.%s' % (prefix, name, format) 
-    #fname = '%s-%s.%s' % (prefix, sha1(hashkey).hexdigest(), format)
     relfn = posixpath.join(self.builder.imgpath, fname)
-    #outfn = path.join(self.builder.outdir, self.builder.imagedir, fname)
+    #XXX outfn = path.join(self.builder.outdir, self.builder.imagedir, fname)
     outfn = path.join(self.builder.outdir, '_images', fname)
 
     if path.isfile(outfn):
@@ -170,8 +170,8 @@ def render_symbol(self, code, options, format, prefix='symbol'):
     except OSError as err:
         if err.errno != ENOENT:   # No such file or directory
             raise
-        #logger.warning('symbolator command %r cannot be run (needed for symbolator '
-        #               'output), check the symbolator_cmd setting', symbolator_cmd)
+        #XXX logger.warning('symbolator command %r cannot be run (needed for symbolator '
+        #XXX                'output), check the symbolator_cmd setting', symbolator_cmd)
         self.builder.warn('symbolator command %r cannot be run (needed for symbolator '
                           'output), check the symbolator_cmd setting' % symbolator_cmd) 
         if not hasattr(self.builder, '_symbolator_warned_cmd'):
@@ -200,7 +200,7 @@ def render_symbol(self, code, options, format, prefix='symbol'):
 
 def render_symbol_html(self, node, code, options, prefix='symbol',
                     imgcls=None, alt=None):
-    # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+    # type: (nodes.NodeVisitor, symbolator, unicode, Dict, unicode, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
     format = self.builder.config.symbolator_output_format
     try:
         if format not in ('png', 'svg'):
@@ -208,7 +208,7 @@ def render_symbol_html(self, node, code, options, prefix='symbol',
                                 "'svg', but is %r" % format)
         fname, outfn = render_symbol(self, code, options, format, prefix)
     except SymbolatorError as exc:
-        #logger.warning('symbolator code %r: ' % code + str(exc))
+        #XXX logger.warning('symbolator code %r: ' % code + str(exc))
         self.builder.warn('symbolator code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
@@ -244,7 +244,7 @@ def render_symbol_latex(self, node, code, options, prefix='symbol'):
     try:
         fname, outfn = render_symbol(self, code, options, 'pdf', prefix)
     except SymbolatorError as exc:
-        #logger.warning('symbolator code %r: ' % code + str(exc))
+        #XXX logger.warning('symbolator code %r: ' % code + str(exc))
         self.builder.warn('symbolator code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
@@ -281,7 +281,7 @@ def render_symbol_texinfo(self, node, code, options, prefix='symbol'):
     try:
         fname, outfn = render_symbol(self, code, options, 'png', prefix)
     except SymbolatorError as exc:
-        #logger.warning('symbolator code %r: ' % code + str(exc))
+        #XXX logger.warning('symbolator code %r: ' % code + str(exc))
         self.builder.warn('symbolator code %r: ' % code + str(exc))
         raise nodes.SkipNode
     if fname is not None:

@@ -1,5 +1,6 @@
-#!/usr/bin/python
-
+# -*- coding: utf-8 -*-
+# Copyright © 2017 Kevin Thibedeau
+# Distributed under the terms of the MIT license
 from __future__ import print_function
 
 from shapes import GroupShape, DrawStyle
@@ -49,11 +50,9 @@ class NuCanvas(GroupShape):
       bx1 = max(boxes[2])
       by1 = max(boxes[3])
 
-    #print('## BBB', (bx0, by0, bx1, by1), boxes)
     return [bx0, by0, bx1, by1]
 
   def move(self, item, dx, dy):
-    #print('## MOVE 1', item, dx, dy, 'Shapes:', len(self._get_shapes(item)))
     for s in self._get_shapes(item):
       s.move(dx, dy)
 

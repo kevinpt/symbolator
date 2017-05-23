@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # Copyright © 2017 Kevin Thibedeau
 # Distributed under the terms of the MIT license
-
 from __future__ import print_function
 
 import sys, copy, re, argparse, os, errno
@@ -17,7 +16,7 @@ import hdlparse.vhdl_parser as vhdl
 import hdlparse.verilog_parser as vlog
 
 
-__version__ = '0.6.2'
+__version__ = '1.0'
 
 
 def xml_escape(txt):
@@ -30,6 +29,7 @@ def xml_escape(txt):
 
 
 class Pin(object):
+  '''Symbol pin'''
   def __init__(self, text, side='l', bubble=False, clocked=False, bus=False, bidir=False, data_type=None):
     self.text = text
     self.bubble = bubble
@@ -109,6 +109,7 @@ class Pin(object):
 
 
 class PinSection(object):
+  '''Symbol section'''
   def __init__(self, name, fill=None, line_color=(0,0,0)):
     self.fill = fill
     self.line_color = line_color
@@ -210,6 +211,7 @@ class PinSection(object):
     return (g, (x, y+top, x+width, y+bot))
 
 class Symbol(object):
+  '''Symbol composed of sections'''
   def __init__(self, sections=None, line_color=(0,0,0)):
     if sections is not None:
       self.sections = sections
@@ -252,6 +254,7 @@ class Symbol(object):
     return (x0,y0, x1,y1)
 
 class HdlSymbol(object):
+  '''Top level symbol object'''
   def __init__(self, component=None, symbols=None, symbol_spacing=10, width_steps=20):
     self.symbols = symbols if symbols is not None else []
     self.symbol_spacing = symbol_spacing
@@ -283,16 +286,15 @@ class HdlSymbol(object):
 
 
 def make_section(sname, sect_pins, fill, extractor, no_type=False):
+  '''Create a section from a pin list'''
   sect = PinSection(sname, fill=fill)
   side = 'l'
 
-  #print('## SP:', sect_pins)
   for p in sect_pins:
     pname = p.name
     pdir = p.mode
     data_type = p.data_type if no_type == False else None
     bus = extractor.is_array(p.data_type)
-    #print('## BUS:', p.name, p.data_type, bus)
 
     pdir = pdir.lower()
 
@@ -307,7 +309,6 @@ def make_section(sname, sect_pins, fill, extractor, no_type=False):
       side = 'l'
     elif pdir in ('out', 'inout'):
       side = 'r'
-
 
     pin = Pin(pname, side=side, data_type=data_type)
     if pdir == 'inout':
@@ -334,12 +335,10 @@ def make_section(sname, sect_pins, fill, extractor, no_type=False):
   return sect
 
 def make_symbol(comp, extractor, title=False, no_type=False):
-
+  '''Create a symbol from a parsed component/module'''
   vsym = HdlSymbol() if title == False else HdlSymbol(comp.name)
 
   color_seq = sinebow.distinct_color_sequence(0.6)
-
-  #print('## PORTS:', comp.ports)
 
   if len(comp.generics) > 0: #'generic' in entity_data:
     s = make_section(None, comp.generics, (200,200,200), extractor, no_type)
@@ -350,13 +349,10 @@ def make_symbol(comp, extractor, title=False, no_type=False):
     psym = Symbol()
 
     # Break ports into sections
-    #print('## SECT:', comp.sections, comp.ports)
-
     cur_sect = []
     sections = []
     sect_name = comp.sections[0] if 0 in comp.sections else None
     for i,p in enumerate(comp.ports):
-      #print('## PORT:', i, p)
       if i in comp.sections and len(cur_sect) > 0: # Finish previous section
         sections.append((sect_name, cur_sect))
         cur_sect = []
@@ -366,11 +362,7 @@ def make_symbol(comp, extractor, title=False, no_type=False):
     if len(cur_sect) > 0:
       sections.append((sect_name, cur_sect))
 
-    #sections = [(None, comp.ports)]
-    #print('## SECTIONS:', sections)
-
-    for sdata in sections: #entity_data['port']:
-      #print('## SDAT:', sdata[0])
+    for sdata in sections:
       s = make_section(sdata[0], sdata[1], sinebow.lighten(next(color_seq), 0.75), extractor, no_type)
       psym.add_section(s)
 
@@ -379,6 +371,7 @@ def make_symbol(comp, extractor, title=False, no_type=False):
   return vsym
 
 def parse_args():
+  '''Parse command line arguments'''
   parser = argparse.ArgumentParser(description='HDL symbol generator')
   parser.add_argument('-i', '--input', dest='input', action='store', help='HDL source ("-" for STDIN)')
   parser.add_argument('-o', '--output', dest='output', action='store', help='Output file')
@@ -419,15 +412,12 @@ def parse_args():
 
 
 def is_verilog_code(code):
+  '''Identify Verilog from stdin'''
   return re.search('endmodule', code) is not None
 
-#def is_vhdl(fname):
-#  return os.path.splitext(fname)[1].lower() in ('.vhdl', '.vhd')
-
-#def is_verilog(fname):
-#  return os.path.splitext(fname)[1].lower() in ('.vlog', '.v')
 
 def file_search(base_dir, extensions=('.vhdl', '.vhd')):
+  '''Recursively search for files with matching extensions'''
   extensions = set(extensions)
   hdl_files = []
   for root, dirs, files in os.walk(base_dir):
@@ -438,6 +428,7 @@ def file_search(base_dir, extensions=('.vhdl', '.vhd')):
   return hdl_files
 
 def create_directories(fname):
+  '''Create all parent directories in a file path'''
   try:
     os.makedirs(os.path.dirname(fname))
   except OSError as e:
@@ -445,6 +436,7 @@ def create_directories(fname):
       raise
 
 def reformat_array_params(vo):
+  '''Convert array ranges to Verilog style'''
   for p in vo.ports:
     # Replace VHDL downto and to
     data_type = p.data_type.replace(' downto ', ':').replace(' to ', u'\u2799')
@@ -460,6 +452,7 @@ def reformat_array_params(vo):
     p.data_type = data_type
 
 def main():
+  '''Run symbolator'''
   args = parse_args()
 
   style = DrawStyle()
@@ -516,9 +509,6 @@ def main():
     vhdl_files = set(f for f in flist if vhdl.is_vhdl(f))
     vlog_files = flist - vhdl_files
 
-    #print('## VHDL:', vhdl_files)
-    #print('## Verilog:', vlog_files)
-
     all_components = {f: [(c, vhdl_ex) for c in vhdl_ex.extract_file_components(f)] for f in vhdl_files}
 
     vlog_components = {f: [(c, vlog_ex) for c in vlog_ex.extract_file_modules(f)] for f in vlog_files}
@@ -528,8 +518,6 @@ def main():
   else:
     print('ERROR: Invalid input source')
     sys.exit(1)
-
-  #print('## ALL COMPS:', all_components)
 
   if args.output:
     create_directories(args.output)
@@ -565,7 +553,6 @@ def main():
         if args.output:
           fname = os.path.join(args.output, fname)
       print('Creating symbol for {} "{}"\n\t-> {}'.format(source, comp.name, fname))
-      #print('## Entity:', entity_data)
       if args.format == 'svg':
         surf = SvgSurface(fname, style, padding=5, scale=args.scale)
       else:
@@ -574,14 +561,11 @@ def main():
       nc.set_surface(surf)
       nc.clear_shapes()
 
-      #print(entity_data)
-
-      #print('## MAKE SYM:', comp)
       sym = make_symbol(comp, extractor, args.title, args.no_type)
       sym.draw(0,0, nc)
 
-      #nc.dump_shapes()
       nc.render()
 
 if __name__ == '__main__':
   main()
+
