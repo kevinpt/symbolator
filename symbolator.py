@@ -461,7 +461,7 @@ def main():
   vhdl_ex = vhdl.VhdlExtractor()
   vlog_ex = vlog.VerilogExtractor()
 
-  if os.path.isfile(args.lib_dirs[0]) and vhdl.is_vhdl(args.lib_dirs[0]):
+  if os.path.isfile(args.lib_dirs[0]):
     # This is a file containing previously parsed array type names
     vhdl_ex.load_array_types(args.lib_dirs[0])
 
