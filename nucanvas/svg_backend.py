@@ -416,7 +416,7 @@ width="{}" height="{}" viewBox="{}" version="1.1">
       xr = w / 2.0
       yr = h / 2.0
 
-
+      closed = 'z' if shape.options['closed'] else ''
       start = shape.options['start'] % 360
       extent = shape.options['extent']
       stop = (start + extent) % 360
@@ -441,10 +441,9 @@ width="{}" height="{}" viewBox="{}" version="1.1">
 #      fh.write(u'<circle cx="{}" cy="{}" r="6" fill="{}" />\n'.format(xs, ys, rgb_to_hex((0,0,255))))
 #      fh.write(u'<circle cx="{}" cy="{}" r="6" fill="{}" />\n'.format(xe, ye, rgb_to_hex((0,255,255))))
 
-      fh.write(u'<path d="M{},{} A{},{} 0, {},{} {},{}" {}/>\n'.format(xs,ys, xr,yr, lflag, sflag, xe,ye, attributes))
+      fh.write(u'<path d="M{},{} A{},{} 0, {},{} {},{} {}" {}/>\n'.format(xs,ys, xr,yr, lflag, sflag, xe,ye, closed, attributes))
 
     elif isinstance(shape, PathShape):
-    
       pp = shape.nodes[0]
       nl = []
 
