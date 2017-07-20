@@ -138,12 +138,14 @@ class Symbolator(Directive):
 def render_symbol(self, code, options, format, prefix='symbol'):
     # type: (nodes.NodeVisitor, unicode, Dict, unicode, unicode) -> Tuple[unicode, unicode]
     """Render symbolator code into a PNG or SVG output file."""
+
     symbolator_cmd = options.get('symbolator_cmd', self.builder.config.symbolator_cmd)
     hashkey = (code + str(options) + str(symbolator_cmd) +
                str(self.builder.config.symbolator_cmd_args)).encode('utf-8')
 
+    # Use name option if present otherwise fallback onto SHA-1 hash
     name = options.get('name', sha1(hashkey).hexdigest())
-    fname = '%s-%s.%s' % (prefix, name, format) 
+    fname = '%s-%s.%s' % (prefix, name, format)
     relfn = posixpath.join(self.builder.imgpath, fname)
     #XXX outfn = path.join(self.builder.outdir, self.builder.imagedir, fname)
     outfn = path.join(self.builder.outdir, '_images', fname)
