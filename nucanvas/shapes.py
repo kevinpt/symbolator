@@ -139,7 +139,7 @@ class BaseShape(object):
 
   @property
   def bbox(self):
-    if 'width' in self.options:
+    if 'width' in self.options: # FIXME: rename to 'weight'
       w = self.options['width'] / 2.0
     else:
       w = 0
@@ -155,6 +155,22 @@ class BaseShape(object):
     y1 += w
 
     return (x0,y0,x1,y1)
+
+  @property
+  def width(self):
+    x0, _, x1, _ = self.bbox
+    return x1 - x0
+
+  @property
+  def height(self):
+    _, y0, _, y1 = self.bbox
+    return y1 - y0
+
+  @property
+  def size(self):
+    x0, y1, x1, y1 = self.bbox
+    return (x1-x0, y1-y0)
+
 
   def param(self, name, def_styles=None):
     if name in self.options:
@@ -200,7 +216,7 @@ class GroupShape(BaseShape):
     self._pos = (x0,y0)
     self._bbox = None
     self.shapes = []
-    self.surf = surf
+    self.surf = surf # Needed for TextShape to get font metrics
     
     self.parent = None
     if 'parent' in options:
@@ -245,6 +261,13 @@ class GroupShape(BaseShape):
   def create_group(self, x0, y0, **options):
     options['parent'] = self
     shape = GroupShape(self.surf, x0, y0, options)
+    self.shapes.append(shape)
+    self._bbox = None # Invalidate memoized box
+    return shape
+
+  def create_group2(self, sclass, x0, y0, **options):
+    options['parent'] = self
+    shape = sclass(self.surf, x0, y0, options)
     self.shapes.append(shape)
     self._bbox = None # Invalidate memoized box
     return shape
@@ -347,6 +370,9 @@ class OvalShape(BaseShape):
 
 class ArcShape(BaseShape):
   def __init__(self, x0, y0, x1, y1, options=None, **kwargs):
+    if 'closed' not in options:
+      options['closed'] = False
+
     BaseShape.__init__(self, options, **kwargs)
     self._bbox = [x0, y0, x1, y1]
     self.update_tags()
