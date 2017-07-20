@@ -16,7 +16,10 @@
    version="1.1"
    id="svg3463"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="logo-logo.svg"><metadata
+   sodipodi:docname="logo.svg"
+   inkscape:export-filename="/projects/devel/symbolator/doc/images/symbolator_icon2.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90"><metadata
      id="metadata3509"><rdf:RDF><cc:Work
          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><sodipodi:namedview
@@ -32,9 +35,9 @@
      inkscape:window-height="1014"
      id="namedview3507"
      showgrid="false"
-     inkscape:zoom="10.24"
-     inkscape:cx="27.245804"
-     inkscape:cy="47.222439"
+     inkscape:zoom="3.6203867"
+     inkscape:cx="-19.641279"
+     inkscape:cy="18.915902"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
