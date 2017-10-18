@@ -192,7 +192,7 @@ class CairoSurface(BaseSurface):
       
     c.restore()
 
-  def draw_marker(self, name, mp, tp, width, c):
+  def draw_marker(self, name, mp, tp, weight, c):
     if name in self.markers:
       m_shape, ref, orient, units = self.markers[name]
 
@@ -206,7 +206,7 @@ class CairoSurface(BaseSurface):
         c.rotate(angle)
 
       if units == 'stroke':
-        c.scale(width,width)
+        c.scale(weight, weight)
         
       c.translate(-ref[0], -ref[1])
       
@@ -218,14 +218,14 @@ class CairoSurface(BaseSurface):
     default_pen = rgb_to_cairo(self.def_styles.line_color)
     c.set_source_rgba(*default_pen)
 
-    width = shape.param('width', self.def_styles)
+    weight = shape.param('weight', self.def_styles)
     fill = shape.param('fill', self.def_styles)
     line_color = shape.param('line_color', self.def_styles)
     line_cap = cairo_line_cap(shape.param('line_cap', self.def_styles))
     
-    stroke = True if width > 0 else False
+    stroke = True if weight > 0 else False
 
-    c.set_line_width(width)
+    c.set_line_width(weight)
     c.set_line_cap(line_cap)
 
     if shape.__class__ in self.shape_drawers:
@@ -306,9 +306,9 @@ class CairoSurface(BaseSurface):
 
       # Draw any markers
 
-      self.draw_marker(marker_start, (x0,y0), (x1,y1), width, c)
-      self.draw_marker(marker_end, (x1,y1), (x1 + 2*(x1-x0),y1 + 2*(y1-y0)), width,  c)
-      self.draw_marker(marker_mid, ((x0 + x1)/2,(y0+y1)/2), (x1,y1), width, c)
+      self.draw_marker(marker_start, (x0,y0), (x1,y1), weight, c)
+      self.draw_marker(marker_end, (x1,y1), (x1 + 2*(x1-x0),y1 + 2*(y1-y0)), weight,  c)
+      self.draw_marker(marker_mid, ((x0 + x1)/2,(y0+y1)/2), (x1,y1), weight, c)
 
 
     elif isinstance(shape, RectShape):

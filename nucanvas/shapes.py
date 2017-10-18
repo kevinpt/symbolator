@@ -114,7 +114,7 @@ class BaseSurface(object):
 class DrawStyle(object):
   def __init__(self):
     # Set defaults
-    self.width = 1
+    self.weight = 1
     self.line_color = (0,0,255)
     self.line_cap = 'butt'
 #    self.arrows = True
@@ -139,8 +139,8 @@ class BaseShape(object):
 
   @property
   def bbox(self):
-    if 'width' in self.options: # FIXME: rename to 'weight'
-      w = self.options['width'] / 2.0
+    if 'weight' in self.options:
+      w = self.options['weight'] / 2.0
     else:
       w = 0
 
@@ -210,6 +210,29 @@ class BaseShape(object):
     pass
 
 
+  def make_group(self):
+    '''Convert a shape into a group'''
+    parent = self.options['parent']
+
+    # Walk up the parent hierarchy until we find a GroupShape with a surface ref
+    p = parent
+    while not isinstance(p, GroupShape):
+      p = p.options['parent']
+
+    surf = p.surf
+
+    g = GroupShape(surf, 0,0, {'parent': parent})
+
+    # Add this shape as a child of the new group
+    g.shapes.append(self)
+    self.options['parent'] = g
+
+    # Replace this shape in the parent's child list
+    parent.shapes = [c if c is not self else g for c in parent.shapes]
+
+    return g
+
+
 class GroupShape(BaseShape):
   def __init__(self, surf, x0, y0, options, **kwargs):
     BaseShape.__init__(self, options, **kwargs)
@@ -218,16 +241,16 @@ class GroupShape(BaseShape):
     self.shapes = []
     self.surf = surf # Needed for TextShape to get font metrics
     
-    self.parent = None
-    if 'parent' in options:
-      self.parent = options['parent']
-      del options['parent']
+#    self.parent = None
+#    if 'parent' in options:
+#      self.parent = options['parent']
+#      del options['parent']
     
     self.update_tags()
     
   def ungroup(self):
     if self.parent is None:
-      return
+      return # Can't ungroup top level canvas group
     
     x, y = self._pos
     for s in self.shapes:
@@ -253,6 +276,7 @@ class GroupShape(BaseShape):
     self._pos = (self._pos[0] + dx, self._pos[1] + dy)
     
   def create_shape(self, sclass, x0, y0, x1, y1, **options):
+    options['parent'] = self
     shape = sclass(x0, y0, x1, y1, options)
     self.shapes.append(shape)
     self._bbox = None # Invalidate memoized box
@@ -379,7 +403,7 @@ class ArcShape(BaseShape):
 
   @property
   def bbox(self):
-    lw = self.param('width')
+    lw = self.param('weight')
     if lw is None:
       lw = 0
       
@@ -420,8 +444,8 @@ class ArcShape(BaseShape):
     x1 = max(points[0]) + xc + lw
     y1 = max(points[1]) + yc + lw
 
-    if 'width' in self.options:
-      w = self.options['width'] / 2.0
+    if 'weight' in self.options:
+      w = self.options['weight'] / 2.0
       # FIXME: This doesn't properly compensate for the true extrema of the stroked outline
       x0 -= w
       x1 += w
@@ -457,8 +481,8 @@ class PathShape(BaseShape):
     x1 = max(extrema[0])
     y1 = max(extrema[1])
 
-    if 'width' in self.options:
-      w = self.options['width'] / 2.0
+    if 'weight' in self.options:
+      w = self.options['weight'] / 2.0
       # FIXME: This doesn't properly compensate for the true extrema of the stroked outline
       x0 -= w
       x1 += w
@@ -569,7 +593,7 @@ def cairo_draw_DoubleRectShape(shape, surf):
   
   c.rectangle(x0,y0, x1-x0,y1-y0)
 
-  stroke = True if shape.options['width'] > 0 else False
+  stroke = True if shape.options['weight'] > 0 else False
 
   if 'fill' in shape.options:
     c.set_source_rgba(*rgb_to_cairo(shape.options['fill']))

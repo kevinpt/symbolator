@@ -262,15 +262,15 @@ width="{}" height="{}" viewBox="{}" version="1.1">
       'fill': 'none'
     }
 
-    width = shape.param('width', self.def_styles)
+    weight = shape.param('weight', self.def_styles)
     fill = shape.param('fill', self.def_styles)
     line_color = shape.param('line_color', self.def_styles)
     #line_cap = cairo_line_cap(shape.param('line_cap', self.def_styles))
     
-    stroke = True if width > 0 else False
+    stroke = True if weight > 0 else False
     
-    if width > 0:
-      attrs['stroke-width'] = width
+    if weight > 0:
+      attrs['stroke-width'] = weight
 
       if line_color is not None:
         attrs['stroke'] = rgb_to_hex(line_color)
@@ -285,7 +285,7 @@ width="{}" height="{}" viewBox="{}" version="1.1">
       if len(fill) == 4:
         attrs['fill-opacity'] = fill[3] / 255.0
 
-    #c.set_line_width(width)
+    #c.set_line_width(weight)
     #c.set_line_cap(line_cap)
 
     # Draw custom shapes
@@ -353,8 +353,8 @@ width="{}" height="{}" viewBox="{}" version="1.1">
           m_shape, ref, orient, units = self.markers[marker_start]
           mx0, my0, mx1, my1 = m_shape.bbox
           soff = (ref[0] - mx0) * adjust
-          if units == 'stroke' and width > 0:
-            soff *= width
+          if units == 'stroke' and weight > 0:
+            soff *= weight
           
           # Move start point
           x0 += soff * dx
@@ -365,8 +365,8 @@ width="{}" height="{}" viewBox="{}" version="1.1">
           m_shape, ref, orient, units = self.markers[marker_end]
           mx0, my0, mx1, my1 = m_shape.bbox
           eoff = (mx1 - ref[0]) * adjust
-          if units == 'stroke' and width > 0:
-            eoff *= width
+          if units == 'stroke' and weight > 0:
+            eoff *= weight
           
           # Move end point
           x1 -= eoff * dx
