@@ -15,6 +15,7 @@ import nucanvas.color.sinebow as sinebow
 import hdlparse.vhdl_parser as vhdl
 import hdlparse.verilog_parser as vlog
 
+from hdlparse.vhdl_parser import VhdlComponent
 
 __version__ = '1.0.1'
 
@@ -71,8 +72,8 @@ class Pin(object):
       xe = 0
 
     # Whisker for pin
-    pin_width = 3 if self.bus else 1
-    ls = g.create_line(xs,0, xe,0, width=pin_width)
+    pin_weight = 3 if self.bus else 1
+    ls = g.create_line(xs,0, xe,0, weight=pin_weight)
 
     if self.bidir:
       ls.options['marker_start'] = 'arrow_back'
@@ -218,7 +219,7 @@ class Symbol(object):
     else:
       self.sections = []
 
-    self.line_width = 3
+    self.line_weight = 3
     self.line_color = line_color
 
   def add_section(self, section):
@@ -240,7 +241,7 @@ class Symbol(object):
       #section.draw(50, 100 + h, sym_width, nc)
 
     # Find outline of all sections
-    hw = self.line_width / 2.0 - 0.5
+    hw = self.line_weight / 2.0 - 0.5
     sect_boxes = list(zip(*sect_boxes))
     x0 = min(sect_boxes[0]) + hw
     y0 = min(sect_boxes[1]) + hw
@@ -248,7 +249,7 @@ class Symbol(object):
     y1 = max(sect_boxes[3]) - hw
 
     # Add symbol outline
-    c.create_rectangle(x0,y0,x1,y1, width=self.line_width, line_color=self.line_color)
+    c.create_rectangle(x0,y0,x1,y1, weight=self.line_weight, line_color=self.line_color)
 
 
     return (x0,y0, x1,y1)
@@ -475,7 +476,7 @@ def main():
       flist.append(args.input)
 
     # Find all of the array types
-    vhdl_ex.register_files_array_types(flist)
+    vhdl_ex.register_array_types_from_sources(flist)
 
     #print('## ARRAYS:', vhdl_ex.array_types)
 
@@ -490,16 +491,16 @@ def main():
   if args.input == '-': # Read from stdin
     code = ''.join(list(sys.stdin))
     if is_verilog_code(code):
-      all_components = {'<stdin>': [(c, vlog_ex) for c in vlog_ex.extract_modules(code)]}
+      all_components = {'<stdin>': [(c, vlog_ex) for c in vlog_ex.extract_objects_from_source(code)]}
     else:
-      all_components = {'<stdin>': [(c, vhdl_ex) for c in vhdl_ex.extract_components(code)]}
+      all_components = {'<stdin>': [(c, vhdl_ex) for c in vhdl_ex.extract_objects_from_source(code, VhdlComponent)]}
     # Output is a named file
 
   elif os.path.isfile(args.input):
     if vhdl.is_vhdl(args.input):
-      all_components = {args.input: [(c, vhdl_ex) for c in vhdl_ex.extract_file_components(args.input)]}
+      all_components = {args.input: [(c, vhdl_ex) for c in vhdl_ex.extract_objects(args.input, VhdlComponent)]}
     else:
-      all_components = {args.input: [(c, vlog_ex) for c in vlog_ex.extract_file_modules(args.input)]}
+      all_components = {args.input: [(c, vlog_ex) for c in vlog_ex.extract_objects(args.input)]}
     # Output is a directory
 
   elif os.path.isdir(args.input):
@@ -509,9 +510,9 @@ def main():
     vhdl_files = set(f for f in flist if vhdl.is_vhdl(f))
     vlog_files = flist - vhdl_files
 
-    all_components = {f: [(c, vhdl_ex) for c in vhdl_ex.extract_file_components(f)] for f in vhdl_files}
+    all_components = {f: [(c, vhdl_ex) for c in vhdl_ex.extract_objects(f, VhdlComponent)] for f in vhdl_files}
 
-    vlog_components = {f: [(c, vlog_ex) for c in vlog_ex.extract_file_modules(f)] for f in vlog_files}
+    vlog_components = {f: [(c, vlog_ex) for c in vlog_ex.extract_objects(f)] for f in vlog_files}
     all_components.update(vlog_components)
     # Output is a directory
 
@@ -526,19 +527,19 @@ def main():
 
   # Set markers for all shapes
   nc.add_marker('arrow_fwd',
-    PathShape(((0,-4), (2,-1, 2,1, 0,4), (8,0), 'z'), fill=(0,0,0), width=0),
+    PathShape(((0,-4), (2,-1, 2,1, 0,4), (8,0), 'z'), fill=(0,0,0), weight=0),
     (3.2,0), 'auto', None)
 
   nc.add_marker('arrow_back',
-    PathShape(((0,-4), (-2,-1, -2,1, 0,4), (-8,0), 'z'), fill=(0,0,0), width=0),
+    PathShape(((0,-4), (-2,-1, -2,1, 0,4), (-8,0), 'z'), fill=(0,0,0), weight=0),
     (-3.2,0), 'auto', None)
 
   nc.add_marker('bubble',
-    OvalShape(-3,-3, 3,3, fill=(255,255,255), width=1),
+    OvalShape(-3,-3, 3,3, fill=(255,255,255), weight=1),
     (0,0), 'auto', None)
 
   nc.add_marker('clock',
-    PathShape(((0,-7), (0,7), (7,0), 'z'), fill=(255,255,255), width=1),
+    PathShape(((0,-7), (0,7), (7,0), 'z'), fill=(255,255,255), weight=1),
     (0,0), 'auto', None)
 
   # Render every component from every file into an image
