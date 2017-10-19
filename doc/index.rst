@@ -376,7 +376,7 @@ You can control the scale of the resulting image with the ``--scale`` option. It
 Sphinx Extension
 ----------------
 
-A Symbolator extension is avaiable for the Sphinx document generation system. It adds a new "symbolator" directive that allows you to convert inline component or module declarations into an image without manually running Symbolator.
+A Symbolator extension is available for the Sphinx document generation system. It adds a new "symbolator" directive that allows you to convert inline component or module declarations into an image without manually running Symbolator.
 
 .. code-block:: rst
 
@@ -441,7 +441,7 @@ Images are named by default with a SHA1 hash of the code and settings used to ge
     output reg bar;
   endmodule;
 
-You can enable the Sphinx extension by adding the "symbolator_sphinx" package to your conf.py file:
+Enable the Sphinx extension by adding the "symbolator_sphinx" package to your conf.py file:
 
 .. code-block:: python
 
