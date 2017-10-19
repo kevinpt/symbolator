@@ -20,7 +20,7 @@
 /* -- page layout ----------------------------------------------------------- */
 
 body {
-    font-family: Verdana, Geneva, sans-serif;
+    font-family: 'goudy old style', 'minion pro', 'bell mt', Georgia, 'Hiragino Mincho Pro', serif;
     font-size: 17px;
     background-color: white;
     color: #000;
@@ -103,7 +103,7 @@ div.sphinxsidebarwrapper h1.logo {
     margin-top: -10px;
     text-align: center;
     margin-bottom: 5px;
-    text-align: center;
+    text-align: left;
 }
 
 div.sphinxsidebarwrapper h1.logo-name {
@@ -161,7 +161,7 @@ div.sphinxsidebar ul li.toctree-l2 > a {
 
 div.sphinxsidebar input {
     border: 1px solid #CCC;
-    font-family: Verdana, Geneva, sans-serif;
+    font-family: 'goudy old style', 'minion pro', 'bell mt', Georgia, 'Hiragino Mincho Pro', serif;
     font-size: 1em;
 }
 

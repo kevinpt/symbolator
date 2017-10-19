@@ -1,30 +1,29 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Symbolator &mdash; Symbolator 1.0.1 documentation</title>
-    
+    <title>Symbolator &#8212; Symbolator 1.0.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/project.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0.1',
+        VERSION:     '1.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Symbolator 1.0.1 documentation" href="#" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -35,7 +34,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="symbolator">
 <h1>Symbolator<a class="headerlink" href="#symbolator" title="Permalink to this headline">¶</a></h1>
@@ -63,15 +62,15 @@
 <span class="k">end</span> <span class="k">package</span><span class="p">;</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre>&gt; symbolator -i demo_device.vhdl
-Scanning library: .
-Creating symbol for demo_device.vhdl &quot;demo_device&quot;
-          -&gt; demo_device-demo_device.svg
+<div class="highlight-default"><div class="highlight"><pre><span class="o">&gt;</span> <span class="n">symbolator</span> <span class="o">-</span><span class="n">i</span> <span class="n">demo_device</span><span class="o">.</span><span class="n">vhdl</span>
+<span class="n">Scanning</span> <span class="n">library</span><span class="p">:</span> <span class="o">.</span>
+<span class="n">Creating</span> <span class="n">symbol</span> <span class="k">for</span> <span class="n">demo_device</span><span class="o">.</span><span class="n">vhdl</span> <span class="s">&quot;demo_device&quot;</span>
+          <span class="o">-&gt;</span> <span class="n">demo_device</span><span class="o">-</span><span class="n">demo_device</span><span class="o">.</span><span class="n">svg</span>
 </pre></div>
 </div>
 <p>Produces the following:</p>
 <div class="figure align-center">
-<img src="_images/demo_device-demo_device.svg" /></div>
+<img alt="_images/demo_device-demo_device.svg" src="_images/demo_device-demo_device.svg" /></div>
 <p>Symbolator can render to PNG bitmap images or SVG, PDF, PS, and EPS vector images. SVG is the default.</p>
 <div class="section" id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
@@ -87,22 +86,22 @@ passes it through 2to3.</p>
 </div>
 <div class="section" id="download">
 <h2>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h2>
-<p>You can access the Symbolator Git repository from <a class="reference external" href="https://github.com/kevinpt/symbolator">Github</a>. You can install direct from PyPI with the &#8220;pip&#8221;
+<p>You can access the Symbolator Git repository from <a class="reference external" href="https://github.com/kevinpt/symbolator">Github</a>. You can install direct from PyPI with the “pip”
 command if you have it available.</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>Symbolator is a Python application. You must have Python installed first to use it. Most modern Linux distributions and OS/X have it available by default. There are a number of options available for Windows. If you don&#8217;t already have a favorite, I recommend getting one of the <a class="reference external" href="http://www.scipy.org/install.html">&#8220;full-stack&#8221; Python distros</a> that are geared toward scientific computing such as Anaconda or Python(x,y).</p>
+<p>Symbolator is a Python application. You must have Python installed first to use it. Most modern Linux distributions and OS/X have it available by default. There are a number of options available for Windows. If you don’t already have a favorite, I recommend getting one of the <a class="reference external" href="http://www.scipy.org/install.html">“full-stack” Python distros</a> that are geared toward scientific computing such as Anaconda or Python(x,y).</p>
 <p>If your OS has a package manager, it may be preferable to install Python setuptools through that tool before attempting to install Symbolator. Otherwise, the installation script will install these packages directly without registering them with the OS package manager.</p>
 <p>The easiest way to install Symbolator is from <a class="reference external" href="https://pypi.python.org/pypi/symbolator">PyPI</a>.</p>
 <div class="highlight-sh"><div class="highlight"><pre>&gt; pip install --upgrade symbolator
 </pre></div>
 </div>
-<p>This will download and install the latest release, upgrading if you already have it installed. If you don&#8217;t have <tt class="docutils literal"><span class="pre">pip</span></tt> you may have the <tt class="docutils literal"><span class="pre">easy_install</span></tt> command available which can be used to install <tt class="docutils literal"><span class="pre">pip</span></tt> on your system:</p>
+<p>This will download and install the latest release, upgrading if you already have it installed. If you don’t have <code class="docutils literal"><span class="pre">pip</span></code> you may have the <code class="docutils literal"><span class="pre">easy_install</span></code> command available which can be used to install <code class="docutils literal"><span class="pre">pip</span></code> on your system:</p>
 <div class="highlight-sh"><div class="highlight"><pre>&gt; easy_install pip
 </pre></div>
 </div>
-<p>You can also use <tt class="docutils literal"><span class="pre">pip</span></tt> to get the latest development code from Github:</p>
+<p>You can also use <code class="docutils literal"><span class="pre">pip</span></code> to get the latest development code from Github:</p>
 <div class="highlight-sh"><div class="highlight"><pre>&gt; pip install --upgrade https://github.com/kevinpt/symbolator/tarball/master
 </pre></div>
 </div>
@@ -111,8 +110,8 @@ command if you have it available.</p>
 </pre></div>
 </div>
 <p>On Linux systems you may need to install with root privileges using the <em>sudo</em> command.</p>
-<p>After a successful install the Symbolator command line application will be available. On Linux they should be immediately accessible from your current search path. On Windows you will need to make sure that the <tt class="docutils literal"><span class="pre">&lt;Python</span> <span class="pre">root&gt;\Scripts</span></tt> directory is in your %PATH% environment variable.</p>
-<p>If you can&#8217;t use the installer script, it is possible to use <tt class="docutils literal"><span class="pre">symbolator.py</span></tt> directly without installation. If you need to use Python 3 you can manually convert it with the <tt class="docutils literal"><span class="pre">2to3</span></tt> tool:</p>
+<p>After a successful install the Symbolator command line application will be available. On Linux they should be immediately accessible from your current search path. On Windows you will need to make sure that the <code class="docutils literal"><span class="pre">&lt;Python</span> <span class="pre">root&gt;\Scripts</span></code> directory is in your %PATH% environment variable.</p>
+<p>If you can’t use the installer script, it is possible to use <code class="docutils literal"><span class="pre">symbolator.py</span></code> directly without installation. If you need to use Python 3 you can manually convert it with the <code class="docutils literal"><span class="pre">2to3</span></code> tool:</p>
 <div class="highlight-sh"><div class="highlight"><pre>&gt; 2to3 -w symbolator.py
 </pre></div>
 </div>
@@ -120,50 +119,50 @@ command if you have it available.</p>
 <div class="section" id="command-line">
 <h2>Command line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h2>
 <p>Symbolator is a command line tool. You pass it one or more source files and it will generate symbols in any of the supported output formats.</p>
-<div class="highlight-python"><div class="highlight"><pre>usage: symbolator [-h] [-i INPUT] [-o OUTPUT] [-f FORMAT] [-L LIB]
-                  [-s SAVE_LIB] [-t] [--scale SCALE] [--title] [--verilog]
-                  [-v]
+<div class="highlight-default"><div class="highlight"><pre><span class="n">usage</span><span class="p">:</span> <span class="n">symbolator</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">i</span> <span class="n">INPUT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUTPUT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="n">FORMAT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">L</span> <span class="n">LIB</span><span class="p">]</span>
+                  <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">SAVE_LIB</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">scale</span> <span class="n">SCALE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">title</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">verilog</span><span class="p">]</span>
+                  <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
 
-HDL symbol generator
+<span class="n">HDL</span> <span class="n">symbol</span> <span class="n">generator</span>
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -i INPUT, --input INPUT
-                        HDL source (&quot;-&quot; for STDIN)
-  -o OUTPUT, --output OUTPUT
-                        Output file
-  -f FORMAT, --format FORMAT
-                        Output format
-  -L LIB_DIRS, --library LIB_DIRS
-                        Library path
-  -s SAVE_LIB, --save-lib SAVE_LIB
-                        Save type def cache file
-  -t, --transparent     Transparent background
-  --scale SCALE         Scale image
-  --title               Add component name above symbol
-  --no-type             Omit pin type information
-  -v, --version         Symbolator version
+<span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>            <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+  <span class="o">-</span><span class="n">i</span> <span class="n">INPUT</span><span class="p">,</span> <span class="o">--</span><span class="nb">input</span> <span class="n">INPUT</span>
+                        <span class="n">HDL</span> <span class="n">source</span> <span class="p">(</span><span class="s">&quot;-&quot;</span> <span class="k">for</span> <span class="n">STDIN</span><span class="p">)</span>
+  <span class="o">-</span><span class="n">o</span> <span class="n">OUTPUT</span><span class="p">,</span> <span class="o">--</span><span class="n">output</span> <span class="n">OUTPUT</span>
+                        <span class="n">Output</span> <span class="n">file</span>
+  <span class="o">-</span><span class="n">f</span> <span class="n">FORMAT</span><span class="p">,</span> <span class="o">--</span><span class="nb">format</span> <span class="n">FORMAT</span>
+                        <span class="n">Output</span> <span class="nb">format</span>
+  <span class="o">-</span><span class="n">L</span> <span class="n">LIB_DIRS</span><span class="p">,</span> <span class="o">--</span><span class="n">library</span> <span class="n">LIB_DIRS</span>
+                        <span class="n">Library</span> <span class="n">path</span>
+  <span class="o">-</span><span class="n">s</span> <span class="n">SAVE_LIB</span><span class="p">,</span> <span class="o">--</span><span class="n">save</span><span class="o">-</span><span class="n">lib</span> <span class="n">SAVE_LIB</span>
+                        <span class="n">Save</span> <span class="nb">type</span> <span class="k">def</span> <span class="nf">cache</span> <span class="n">file</span>
+  <span class="o">-</span><span class="n">t</span><span class="p">,</span> <span class="o">--</span><span class="n">transparent</span>     <span class="n">Transparent</span> <span class="n">background</span>
+  <span class="o">--</span><span class="n">scale</span> <span class="n">SCALE</span>         <span class="n">Scale</span> <span class="n">image</span>
+  <span class="o">--</span><span class="n">title</span>               <span class="n">Add</span> <span class="n">component</span> <span class="n">name</span> <span class="n">above</span> <span class="n">symbol</span>
+  <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="nb">type</span>             <span class="n">Omit</span> <span class="n">pin</span> <span class="nb">type</span> <span class="n">information</span>
+  <span class="o">-</span><span class="n">v</span><span class="p">,</span> <span class="o">--</span><span class="n">version</span>         <span class="n">Symbolator</span> <span class="n">version</span>
 </pre></div>
 </div>
-<p>You can supply the input with the <tt class="docutils literal"><span class="pre">-i</span></tt> option in one of three forms.</p>
+<p>You can supply the input with the <code class="docutils literal"><span class="pre">-i</span></code> option in one of three forms.</p>
 <ul class="simple">
 <li>Single source file</li>
 <li>Source directory</li>
-<li>Stdin &#8220;-&#8220;</li>
+<li>Stdin “-“</li>
 </ul>
-<p>When you pass a directory, all source files will be recursively searched for VHDL and Verilog source files. When using stdin the language is detected by searching for the substring &#8220;endmodule&#8221; in which case Verilog is assumed if it is present, otherwise the VHDL parser is used. For the other input types the language is determined from the file extension.</p>
-<div class="highlight-python"><div class="highlight"><pre>&gt; symbolator -i foo.vhdl
-&gt; symbolator -i bar.v
-&gt; symbolator -i dir_name
-&gt; symbolator -i - &lt; foo.vhdl
-&gt; symbolator -i - &lt; bar.v
+<p>When you pass a directory, all source files will be recursively searched for VHDL and Verilog source files. When using stdin the language is detected by searching for the substring “endmodule” in which case Verilog is assumed if it is present, otherwise the VHDL parser is used. For the other input types the language is determined from the file extension.</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="o">&gt;</span> <span class="n">symbolator</span> <span class="o">-</span><span class="n">i</span> <span class="n">foo</span><span class="o">.</span><span class="n">vhdl</span>
+<span class="o">&gt;</span> <span class="n">symbolator</span> <span class="o">-</span><span class="n">i</span> <span class="n">bar</span><span class="o">.</span><span class="n">v</span>
+<span class="o">&gt;</span> <span class="n">symbolator</span> <span class="o">-</span><span class="n">i</span> <span class="n">dir_name</span>
+<span class="o">&gt;</span> <span class="n">symbolator</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span> <span class="o">&lt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">vhdl</span>
+<span class="o">&gt;</span> <span class="n">symbolator</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span> <span class="o">&lt;</span> <span class="n">bar</span><span class="o">.</span><span class="n">v</span>
 </pre></div>
 </div>
 <p>When input is from a file, the file name is prepended to any component/module name. This allows you to have the same component name in different source files and still keep the generated images together in a single directory.</p>
-<p>You can provide an optional output file name or directory path with <tt class="docutils literal"><span class="pre">-o</span></tt>. Any intermediate directories in the path will be created automatically.</p>
-<p>The output format can be set with the <tt class="docutils literal"><span class="pre">-f</span></tt> option. You pass it the extension of the format you want the symbol to be generated in. It can be any of: png, svg, pdf, ps, or eps.</p>
-<p>An optional title can be added above the symbol with the <tt class="docutils literal"><span class="pre">--title</span></tt> option. It will be the name of the component or module.</p>
-<p>You can remove type information outside the symbol by passing the <tt class="docutils literal"><span class="pre">--no-type</span></tt> option.</p>
+<p>You can provide an optional output file name or directory path with <code class="docutils literal"><span class="pre">-o</span></code>. Any intermediate directories in the path will be created automatically.</p>
+<p>The output format can be set with the <code class="docutils literal"><span class="pre">-f</span></code> option. You pass it the extension of the format you want the symbol to be generated in. It can be any of: png, svg, pdf, ps, or eps.</p>
+<p>An optional title can be added above the symbol with the <code class="docutils literal"><span class="pre">--title</span></code> option. It will be the name of the component or module.</p>
+<p>You can remove type information outside the symbol by passing the <code class="docutils literal"><span class="pre">--no-type</span></code> option.</p>
 </div>
 <div class="section" id="using-symbolator">
 <h2>Using Symbolator<a class="headerlink" href="#using-symbolator" title="Permalink to this headline">¶</a></h2>
@@ -192,10 +191,10 @@ endmodule;</p></object>
 <p>Symbol pins can have edge sensitivity triangles and inversion bubbles. They are generated when the pin name matches the following patterns:</p>
 <p>Clocks</p>
 <blockquote>
-<div>&#8220;clock&#8221; or &#8220;clk&#8221; at the beginning or end of the name (<tt class="docutils literal"><span class="pre">(^cl(oc)?k)|(cl(oc)?k$)</span></tt>)</div></blockquote>
+<div>“clock” or “clk” at the beginning or end of the name (<code class="docutils literal"><span class="pre">(^cl(oc)?k)|(cl(oc)?k$)</span></code>)</div></blockquote>
 <p>Inversion (active low)</p>
 <blockquote>
-<div>&#8220;_n&#8221; or &#8220;_b&#8221; at the end of the name (<tt class="docutils literal"><span class="pre">_[nb]$</span></tt>)</div></blockquote>
+<div>“_n” or “_b” at the end of the name (<code class="docutils literal"><span class="pre">_[nb]$</span></code>)</div></blockquote>
 <p>Bidirectional pins are rendered with double arrows. Inputs are always on the left. Outputs and bidirectional pins are on the right. Pins are kept in the same order they appear in each section.</p>
 <div class="highlight-vhdl"><div class="highlight"><pre><span class="k">component</span> <span class="nc">example</span> <span class="k">is</span>
   <span class="k">port</span> <span class="p">(</span>
@@ -221,7 +220,7 @@ end component;</p></object>
 </div>
 <div class="section" id="busses">
 <h3>Busses<a class="headerlink" href="#busses" title="Permalink to this headline">¶</a></h3>
-<p>Pins with VHDL array types will be rendered as a bus. If the range is explicitly listed it will appear in brackets separated by a &#8216;:&#8217; for descending ranges and &#8216;→&#8217; for ascending ranges.</p>
+<p>Pins with VHDL array types will be rendered as a bus. If the range is explicitly listed it will appear in brackets separated by a ‘:’ for descending ranges and ‘→’ for ascending ranges.</p>
 <div class="highlight-vhdl"><div class="highlight"><pre><span class="k">subtype</span> <span class="n">word</span> <span class="k">is</span> <span class="n">unsigned</span><span class="p">(</span><span class="mi">7</span> <span class="k">downto</span> <span class="mi">0</span><span class="p">);</span>
 
 <span class="k">component</span> <span class="nc">busses</span> <span class="k">is</span>
@@ -245,20 +244,20 @@ component busses is
     Ascending     : in bit_vector(0 to 7)
   );
 end component;</p></object>
-<p>For Verilog, any pin with a range declaration <tt class="docutils literal"><span class="pre">[...]</span></tt> will render as a bus.</p>
+<p>For Verilog, any pin with a range declaration <code class="docutils literal"><span class="pre">[...]</span></code> will render as a bus.</p>
 </div>
 <div class="section" id="libraries">
 <h3>Libraries<a class="headerlink" href="#libraries" title="Permalink to this headline">¶</a></h3>
-<p>For VHDL, it is necessary to know which data types are array types so they can be rendered as bus pins. To accomplish this Symbolator needs to scan all library code for array type and subtype definitions. The optional <tt class="docutils literal"><span class="pre">-L</span></tt> parameter takes a path to the library directory that is recursively scanned for all VHDL source files. Built-in standard VHDL array types are automatically included. Multiple libraries can be scanned by pasing in additional <tt class="docutils literal"><span class="pre">-L</span></tt> options.</p>
-<p>You can save scanned array definitions to a cached file with the <tt class="docutils literal"><span class="pre">-s</span></tt> option. To use this cached type listing you pass it as the argument to <tt class="docutils literal"><span class="pre">-L</span></tt> on future Symbolator invocations.</p>
-<div class="highlight-python"><div class="highlight"><pre>&gt; symbolator -L my/vhdl/library -L . -s libs.txt
-&gt; symbolator -L libs.txt -i source/path
+<p>For VHDL, it is necessary to know which data types are array types so they can be rendered as bus pins. To accomplish this Symbolator needs to scan all library code for array type and subtype definitions. The optional <code class="docutils literal"><span class="pre">-L</span></code> parameter takes a path to the library directory that is recursively scanned for all VHDL source files. Built-in standard VHDL array types are automatically included. Multiple libraries can be scanned by pasing in additional <code class="docutils literal"><span class="pre">-L</span></code> options.</p>
+<p>You can save scanned array definitions to a cached file with the <code class="docutils literal"><span class="pre">-s</span></code> option. To use this cached type listing you pass it as the argument to <code class="docutils literal"><span class="pre">-L</span></code> on future Symbolator invocations.</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="o">&gt;</span> <span class="n">symbolator</span> <span class="o">-</span><span class="n">L</span> <span class="n">my</span><span class="o">/</span><span class="n">vhdl</span><span class="o">/</span><span class="n">library</span> <span class="o">-</span><span class="n">L</span> <span class="o">.</span> <span class="o">-</span><span class="n">s</span> <span class="n">libs</span><span class="o">.</span><span class="n">txt</span>
+<span class="o">&gt;</span> <span class="n">symbolator</span> <span class="o">-</span><span class="n">L</span> <span class="n">libs</span><span class="o">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">i</span> <span class="n">source</span><span class="o">/</span><span class="n">path</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="symbol-sections">
 <h3>Symbol sections<a class="headerlink" href="#symbol-sections" title="Permalink to this headline">¶</a></h3>
-<p>Each symbol can be split into sections with an optional name and styling class. Sections are denoted by a metacomment starting with &#8220;&#8211;#&#8221; for VHDL or &#8220;//#&#8221; for Verilog. Following that is a label in double curly braces. For assigning a section style you prefix the label with the class name and a &#8216;|&#8217; character.</p>
+<p>Each symbol can be split into sections with an optional name and styling class. Sections are denoted by a metacomment starting with “–#” for VHDL or “//#” for Verilog. Following that is a label in double curly braces. For assigning a section style you prefix the label with the class name and a ‘|’ character.</p>
 <div class="highlight-vhdl"><div class="highlight"><pre><span class="c1">-- Empty section:</span>
 <span class="c1">--# {{}}</span>
 
@@ -272,7 +271,7 @@ end component;</p></object>
 <span class="c1">--# {{data|Input port}}</span>
 </pre></div>
 </div>
-<p>The fixed style names are &#8220;clocks&#8221;, &#8220;control&#8221;, and &#8220;data&#8221;. They always have the same fill colors to maintain consistency across symbols. Any other sections are assigned a pastel color from a pseudo-random sequence.</p>
+<p>The fixed style names are “clocks”, “control”, and “data”. They always have the same fill colors to maintain consistency across symbols. Any other sections are assigned a pastel color from a pseudo-random sequence.</p>
 <div class="highlight-vhdl"><div class="highlight"><pre><span class="k">component</span> <span class="nc">sectioned</span> <span class="k">is</span>
   <span class="k">port</span> <span class="p">(</span>
     <span class="c1">--# {{clocks|Clocking}}</span>
@@ -315,21 +314,21 @@ end component;</p></object>
 </div>
 <div class="section" id="transparency">
 <h3>Transparency<a class="headerlink" href="#transparency" title="Permalink to this headline">¶</a></h3>
-<p>By default the images have a white background. If you want a transparent background pass the <tt class="docutils literal"><span class="pre">-t</span></tt> option.</p>
+<p>By default the images have a white background. If you want a transparent background pass the <code class="docutils literal"><span class="pre">-t</span></code> option.</p>
 </div>
 <div class="section" id="scaling">
 <h3>Scaling<a class="headerlink" href="#scaling" title="Permalink to this headline">¶</a></h3>
-<p>You can control the scale of the resulting image with the <tt class="docutils literal"><span class="pre">--scale</span></tt> option. It takes a floating point scale factor. This is most useful for the PNG output to increase the resolution of the image or create thumbnails with less blurring than conventional bitmap resizing.</p>
-<div class="highlight-python"><div class="highlight"><pre>&gt; symbolator -i scaled.vhdl --scale=0.5
+<p>You can control the scale of the resulting image with the <code class="docutils literal"><span class="pre">--scale</span></code> option. It takes a floating point scale factor. This is most useful for the PNG output to increase the resolution of the image or create thumbnails with less blurring than conventional bitmap resizing.</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="o">&gt;</span> <span class="n">symbolator</span> <span class="o">-</span><span class="n">i</span> <span class="n">scaled</span><span class="o">.</span><span class="n">vhdl</span> <span class="o">--</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.5</span>
 </pre></div>
 </div>
 <div class="figure align-center">
-<img src="_images/scaled-scaled.svg" /></div>
+<img alt="_images/scaled-scaled.svg" src="_images/scaled-scaled.svg" /></div>
 </div>
 </div>
 <div class="section" id="sphinx-extension">
 <h2>Sphinx Extension<a class="headerlink" href="#sphinx-extension" title="Permalink to this headline">¶</a></h2>
-<p>A Symbolator extension is avaiable for the Sphinx document generation system. It adds a new &#8220;symbolator&#8221; directive that allows you to convert inline component or module declarations into an image without manually running Symbolator.</p>
+<p>A Symbolator extension is available for the Sphinx document generation system. It adds a new “symbolator” directive that allows you to convert inline component or module declarations into an image without manually running Symbolator.</p>
 <div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">symbolator</span><span class="p">::</span>
 
   component foo is
@@ -352,8 +351,8 @@ end component;</p></object>
 <div>Path to the symbolator command</div></blockquote>
 <p>name</p>
 <blockquote>
-<div>Logical name (&#8220;id&#8221; attribute in HTML output)</div></blockquote>
-<p>Images are named by default with a SHA1 hash of the code and settings used to generate them. If the &#8220;name&#8221; option is passed it will be used to construct the file name without the hash.</p>
+<div>Logical name (“id” attribute in HTML output)</div></blockquote>
+<p>Images are named by default with a SHA1 hash of the code and settings used to generate them. If the “name” option is passed it will be used to construct the file name without the hash.</p>
 <div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">symbolator</span><span class="p">::</span>
   <span class="nc">:alt:</span> <span class="nf">Alt text</span>
   <span class="nc">:align:</span> <span class="nf">center</span>
@@ -372,9 +371,9 @@ end component;</p></object>
 <div class="figure align-center" id="vlog-example">
 <object data="_images/symbol-vlog-example.svg" type="image/svg+xml">
             <p class="warning">Alt text</p></object>
-<p class="caption">Caption text</p>
+<p class="caption"><span class="caption-text">Caption text</span><a class="headerlink" href="#vlog-example" title="Permalink to this image">¶</a></p>
 </div>
-<p>You can enable the Sphinx extension by adding the &#8220;symbolator_sphinx&#8221; package to your conf.py file:</p>
+<p>Enable the Sphinx extension by adding the “symbolator_sphinx” package to your conf.py file:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Add any Sphinx extension module names here, as strings. They can be</span>
 <span class="c"># extensions coming with Sphinx (named &#39;sphinx.ext.*&#39;) or your custom</span>
 <span class="c"># ones.</span>
@@ -400,8 +399,8 @@ end component;</p></object>
 <div class="section" id="indices-and-tables">
 <h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
-<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
 </ul>
 </div>
 </div>
@@ -410,7 +409,7 @@ end component;</p></object>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="#">
               <img class="logo" src="_static/symbolator_icon.png" alt="Logo"/>
@@ -419,15 +418,6 @@ end component;</p></object>
 
 
 
-<p class="blurb">HDL symbol generator</p>
-
-
-
-
-<p>
-<iframe src="https://ghbtns.com/github-btn.html?user=kevinpt&repo=symbolator&type=watch&count=true&size=large&v=2"
-  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
-</p>
 
 
 
@@ -546,17 +536,14 @@ if(sessionStorage.KTcacheTime && now - sessionStorage.KTcacheTime < 5*60*1000 ) 
 
 });
 </script>
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -568,7 +555,11 @@ if(sessionStorage.KTcacheTime && now - sessionStorage.KTcacheTime < 5*60*1000 ) 
       &copy;2017, Kevin Thibedeau.
       
       |
-      <a href="_sources/index.txt"
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
