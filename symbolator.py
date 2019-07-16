@@ -16,6 +16,7 @@ import hdlparse.vhdl_parser as vhdl
 import hdlparse.verilog_parser as vlog
 
 from hdlparse.vhdl_parser import VhdlComponent
+from hdlparse.vhdl_parser import VhdlEntity
 
 __version__ = '1.0.2'
 
@@ -268,6 +269,8 @@ class HdlSymbol(object):
     self.symbols.append(symbol)
 
   def draw(self, x, y, c):
+    if len(self.symbols) == 0:
+        return
     style = c.surf.def_styles
     sym_width = max(s.min_width(c, style.font) for sym in self.symbols for s in sym.sections)
 
@@ -494,11 +497,13 @@ def main():
       all_components = {'<stdin>': [(c, vlog_ex) for c in vlog_ex.extract_objects_from_source(code)]}
     else:
       all_components = {'<stdin>': [(c, vhdl_ex) for c in vhdl_ex.extract_objects_from_source(code, VhdlComponent)]}
+      all_components['<stdin>'].extend((c, vhdl_ex) for c in vhdl_ex.extract_objects_from_source(code, VhdlEntity))
     # Output is a named file
 
   elif os.path.isfile(args.input):
     if vhdl.is_vhdl(args.input):
       all_components = {args.input: [(c, vhdl_ex) for c in vhdl_ex.extract_objects(args.input, VhdlComponent)]}
+      all_components[args.input].extend((c, vhdl_ex) for c in vhdl_ex.extract_objects(args.input, VhdlEntity))
     else:
       all_components = {args.input: [(c, vlog_ex) for c in vlog_ex.extract_objects(args.input)]}
     # Output is a directory
@@ -510,7 +515,7 @@ def main():
     vhdl_files = set(f for f in flist if vhdl.is_vhdl(f))
     vlog_files = flist - vhdl_files
 
-    all_components = {f: [(c, vhdl_ex) for c in vhdl_ex.extract_objects(f, VhdlComponent)] for f in vhdl_files}
+    all_components = {f: [(c, vhdl_ex) for c in vhdl_ex.extract_objects(f, objtype)] for objtype in [VhdlComponent, VhdlEntity] for f in vhdl_files}
 
     vlog_components = {f: [(c, vlog_ex) for c in vlog_ex.extract_objects(f)] for f in vlog_files}
     all_components.update(vlog_components)
