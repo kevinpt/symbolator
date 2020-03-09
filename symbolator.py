@@ -131,9 +131,10 @@ class PinSection(object):
           self.name = None
 
     class_colors = {
-      'clocks': sinebow.lighten(sinebow.sinebow(0), 0.75),    # Red
-      'data': sinebow.lighten(sinebow.sinebow(0.35), 0.75),   # Green
-      'control': sinebow.lighten(sinebow.sinebow(0.15), 0.75) # Yellow
+      'clocks': sinebow.lighten(sinebow.sinebow(0), 0.75),     # Red
+      'data': sinebow.lighten(sinebow.sinebow(0.35), 0.75),    # Green
+      'control': sinebow.lighten(sinebow.sinebow(0.15), 0.75), # Yellow
+      'power': sinebow.lighten(sinebow.sinebow(0.07), 0.75)    # Orange
     }
 
     if self.sect_class in class_colors:
