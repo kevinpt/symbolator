@@ -336,9 +336,14 @@ def make_section(sname, sect_pins, fill, extractor, no_type=False):
 
   return sect
 
-def make_symbol(comp, extractor, title=False, no_type=False):
+def make_symbol(comp, extractor, title=False, caption="", no_type=False):
   '''Create a symbol from a parsed component/module'''
-  vsym = HdlSymbol() if title == False else HdlSymbol(comp.name)
+  if caption != "":
+      vsym = HdlSymbol(caption)
+  elif title != False:
+      vsym = HdlSymbol(comp.name)
+  else:
+      vsym = HdlSymbol()
 
   color_seq = sinebow.distinct_color_sequence(0.6)
 
@@ -387,6 +392,7 @@ def parse_args():
   parser.add_argument('--title', dest='title', action='store_true', default=False, help='Add component name above symbol')
   parser.add_argument('--no-type', dest='no_type', action='store_true', default=False, help='Omit pin type information')
   parser.add_argument('-v', '--version', dest='version', action='store_true', default=False, help='Symbolator version')
+  parser.add_argument('--caption', dest='caption', action='store', default='', help='Caption above module. Works only with --tile and replaces filename')
 
   args, unparsed = parser.parse_known_args()
 
@@ -403,6 +409,10 @@ def parse_args():
 
   if args.input == '-' and args.output is None: # Reading from stdin: must have full output file name
     print('Error: output file is required')
+    sys.exit(1)
+
+  if args.caption != '' and not args.title:
+    print("Error: '--tile' is required when using caption")
     sys.exit(1)
 
   args.scale = float(args.scale)
@@ -551,7 +561,7 @@ def main():
         fname = args.output
       else:
         base = os.path.splitext(os.path.basename(source))[0]
-        fname = '{}-{}.{}'.format(base, comp.name, args.format)
+        fname = '{}.{}'.format(comp.name, args.format)
         if args.output:
           fname = os.path.join(args.output, fname)
       print('Creating symbol for {} "{}"\n\t-> {}'.format(source, comp.name, fname))
@@ -563,7 +573,7 @@ def main():
       nc.set_surface(surf)
       nc.clear_shapes()
 
-      sym = make_symbol(comp, extractor, args.title, args.no_type)
+      sym = make_symbol(comp, extractor, args.title, args.caption, args.no_type)
       sym.draw(0,0, nc)
 
       nc.render()
