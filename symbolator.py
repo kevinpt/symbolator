@@ -257,11 +257,12 @@ class Symbol(object):
 
 class HdlSymbol(object):
   '''Top level symbol object'''
-  def __init__(self, component=None, symbols=None, symbol_spacing=10, width_steps=20):
+  def __init__(self, component=None, libname=None, symbols=None, symbol_spacing=10, width_steps=20):
     self.symbols = symbols if symbols is not None else []
     self.symbol_spacing = symbol_spacing
     self.width_steps = width_steps
     self.component = component
+    self.libname = libname
 
 
 
@@ -277,13 +278,19 @@ class HdlSymbol(object):
     yoff = y
     for i, s in enumerate(self.symbols):
       bb = s.draw(x, y + yoff, c, sym_width)
-
-      if i == 0 and self.component:
+      if i==0 and self.libname:
+        # Add libname
+        c.create_text((bb[0]+bb[2])/2.0,bb[1] - self.symbol_spacing, anchor='cs',
+          text=self.libname, font=('Helvetica', 12, 'bold'))
+      elif i == 0 and self.component:
         # Add component name
         c.create_text((bb[0]+bb[2])/2.0,bb[1] - self.symbol_spacing, anchor='cs',
-          text=self.component, font=('Helvetica', 14, 'bold'))
+          text=self.component, font=('Helvetica', 12, 'bold'))
 
       yoff += bb[3] - bb[1] + self.symbol_spacing
+    if self.libname is not None:
+        c.create_text((bb[0]+bb[2])/2.0,bb[3] + 2 * self.symbol_spacing, anchor='cs',
+          text=self.component, font=('Helvetica', 12, 'bold'))
 
 
 
@@ -336,10 +343,10 @@ def make_section(sname, sect_pins, fill, extractor, no_type=False):
 
   return sect
 
-def make_symbol(comp, extractor, title=False, caption="", no_type=False):
+def make_symbol(comp, extractor, title=False, libname="", no_type=False):
   '''Create a symbol from a parsed component/module'''
-  if caption != "":
-      vsym = HdlSymbol(caption)
+  if libname != "":
+      vsym = HdlSymbol(comp.name, libname)
   elif title != False:
       vsym = HdlSymbol(comp.name)
   else:
@@ -392,7 +399,7 @@ def parse_args():
   parser.add_argument('--title', dest='title', action='store_true', default=False, help='Add component name above symbol')
   parser.add_argument('--no-type', dest='no_type', action='store_true', default=False, help='Omit pin type information')
   parser.add_argument('-v', '--version', dest='version', action='store_true', default=False, help='Symbolator version')
-  parser.add_argument('--caption', dest='caption', action='store', default='', help='Caption above module. Works only with --tile and replaces filename')
+  parser.add_argument('--libname', dest='libname', action='store', default='', help='Add libname above cellname, and move component name to bottom. Works only with --title')
 
   args, unparsed = parser.parse_known_args()
 
@@ -411,8 +418,8 @@ def parse_args():
     print('Error: output file is required')
     sys.exit(1)
 
-  if args.caption != '' and not args.title:
-    print("Error: '--tile' is required when using caption")
+  if args.libname != '' and not args.title:
+    print("Error: '--tile' is required when using libname")
     sys.exit(1)
 
   args.scale = float(args.scale)
@@ -561,7 +568,10 @@ def main():
         fname = args.output
       else:
         base = os.path.splitext(os.path.basename(source))[0]
-        fname = '{}.{}'.format(comp.name, args.format)
+        fname = '{}{}.{}'.format(
+            args.libname + "_" if args.libname is not None else "",
+            comp.name,
+            args.format)
         if args.output:
           fname = os.path.join(args.output, fname)
       print('Creating symbol for {} "{}"\n\t-> {}'.format(source, comp.name, fname))
@@ -573,7 +583,7 @@ def main():
       nc.set_surface(surf)
       nc.clear_shapes()
 
-      sym = make_symbol(comp, extractor, args.title, args.caption, args.no_type)
+      sym = make_symbol(comp, extractor, args.title, args.libname, args.no_type)
       sym.draw(0,0, nc)
 
       nc.render()
