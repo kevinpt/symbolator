@@ -569,7 +569,7 @@ def main():
       else:
         base = os.path.splitext(os.path.basename(source))[0]
         fname = '{}{}.{}'.format(
-            args.libname + "_" if args.libname is not None else "",
+            args.libname + "-" if args.libname is not None else "",
             comp.name,
             args.format)
         if args.output:
