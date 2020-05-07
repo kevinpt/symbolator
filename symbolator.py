@@ -563,6 +563,7 @@ def main():
   # Render every component from every file into an image
   for source, components in all_components.iteritems():
     for comp, extractor in components:
+      comp.name = comp.name.strip('_')
       reformat_array_params(comp)
       if source == '<stdin>':
         fname = args.output
