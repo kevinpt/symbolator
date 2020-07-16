@@ -30,8 +30,8 @@ class NuCanvas(GroupShape):
     return shapes
 
 
-  def render(self):
-    self.surf.render(self)
+  def render(self, transparent):
+    self.surf.render(self, transparent)
     
   def add_marker(self, name, shape, ref=(0,0), orient='auto', units='stroke'):
     self.markers[name] = (shape, ref, orient, units)

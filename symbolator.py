@@ -565,7 +565,7 @@ def main():
       sym = make_symbol(comp, extractor, args.title, args.no_type)
       sym.draw(0,0, nc)
 
-      nc.render()
+      nc.render(args.transparent)
 
 if __name__ == '__main__':
   main()
